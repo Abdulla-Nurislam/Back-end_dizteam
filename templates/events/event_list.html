@@ -1,0 +1,92 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Events{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Events</h5>
+          <div>
+            <a href="{% url 'calendar' %}" class="btn btn-outline-secondary btn-sm">
+              <i class="fas fa-calendar-alt"></i> Calendar View
+            </a>
+            <a href="{% url 'event_create' %}" class="btn btn-primary btn-sm">
+              <i class="fas fa-plus"></i> New Event
+            </a>
+          </div>
+        </div>
+        <div class="card-body">
+          {% if date_filter %}
+          <div class="alert alert-info mb-3">
+            Showing events for {{ date_filter }}
+            <a href="{% url 'event_list' %}" class="float-end">Show all</a>
+          </div>
+          {% endif %}
+          
+          {% if events %}
+            <div class="list-group">
+              {% for event in events %}
+                <a href="{% url 'event_detail' event.pk %}" class="list-group-item list-group-item-action">
+                  <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{ event.title }}</h5>
+                    <small>
+                      {% if event.is_past %}
+                        <span class="badge bg-secondary">Past</span>
+                      {% elif event.is_ongoing %}
+                        <span class="badge bg-success">Now</span>
+                      {% endif %}
+                    </small>
+                  </div>
+                  
+                  <div class="mb-1">
+                    {% if event.all_day %}
+                      <small class="text-muted">All day: {{ event.start_time|date:"F j, Y" }}</small>
+                    {% else %}
+                      <small class="text-muted">
+                        {{ event.start_time|date:"F j, Y, g:i a" }} - 
+                        {% if event.start_time.date == event.end_time.date %}
+                          {{ event.end_time|date:"g:i a" }}
+                        {% else %}
+                          {{ event.end_time|date:"F j, Y, g:i a" }}
+                        {% endif %}
+                      </small>
+                    {% endif %}
+                  </div>
+                  
+                  {% if event.location %}
+                    <small><i class="fas fa-map-marker-alt"></i> {{ event.location }}</small>
+                  {% endif %}
+                  
+                  {% if event.owner != request.user %}
+                    <small class="badge bg-info text-white">
+                      <i class="fas fa-share-alt"></i> Shared by {{ event.owner.username }}
+                    </small>
+                  {% endif %}
+                  
+                  {% if event.repeat != 'none' %}
+                    <small class="badge bg-primary">
+                      <i class="fas fa-sync"></i> {{ event.get_repeat_display }}
+                    </small>
+                  {% endif %}
+                </a>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="alert alert-info">
+              {% if date_filter %}
+                No events found for this date.
+              {% else %}
+                No events found. <a href="{% url 'event_create' %}">Create your first event</a>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 

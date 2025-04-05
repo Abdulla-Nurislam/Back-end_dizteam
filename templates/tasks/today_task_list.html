@@ -1,0 +1,111 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Today's Tasks{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Today's Tasks</h5>
+          <div>
+            <a href="{% url 'calendar' %}" class="btn btn-outline-secondary btn-sm">
+              <i class="fas fa-calendar-alt"></i> Calendar
+            </a>
+            <a href="{% url 'task_create' %}" class="btn btn-primary btn-sm">
+              <i class="fas fa-plus"></i> New Task
+            </a>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-info mb-3">
+            <i class="fas fa-calendar-day"></i> {{ today_date|date:"l, F j, Y" }}
+          </div>
+          
+          {% if tasks %}
+            <div class="list-group">
+              {% for task in tasks %}
+                <div class="list-group-item">
+                  <div class="d-flex w-100 justify-content-between">
+                    <div class="form-check">
+                      <form method="post" action="{% url 'task_toggle_completion' task.pk %}?next={% url 'today_tasks' %}">
+                        {% csrf_token %}
+                        <input class="form-check-input task-checkbox" type="checkbox" id="task-{{ task.id }}" 
+                               {% if task.is_completed %}checked{% endif %} 
+                               onchange="this.form.submit()">
+                        <label class="form-check-label {% if task.is_completed %}text-decoration-line-through{% endif %}" 
+                               for="task-{{ task.id }}">
+                          {{ task.title }}
+                        </label>
+                      </form>
+                    </div>
+                    <div>
+                      {% if task.deadline %}
+                        <span class="badge bg-info">{{ task.deadline|date:"g:i a" }}</span>
+                      {% endif %}
+                      <div class="dropdown d-inline-block">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" 
+                                id="dropdownMenuButton{{ task.id }}" data-bs-toggle="dropdown" 
+                                aria-expanded="false">
+                          <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton{{ task.id }}">
+                          <li><a class="dropdown-item" href="{% url 'task_detail' task.pk %}">View Details</a></li>
+                          <li><a class="dropdown-item" href="{% url 'task_update' task.pk %}">Edit</a></li>
+                          <li><a class="dropdown-item" href="{% url 'task_toggle_today' task.pk %}?next={% url 'today_tasks' %}">
+                            Remove from Today</a></li>
+                          <li><hr class="dropdown-divider"></li>
+                          <li><a class="dropdown-item text-danger" href="{% url 'task_delete' task.pk %}">Delete</a></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {% if task.description %}
+                    <p class="mb-1 text-muted small">{{ task.description|truncatechars:100 }}</p>
+                  {% endif %}
+                  
+                  <div class="mt-1">
+                    {% if task.project %}
+                      <a href="{% url 'project_detail' task.project.pk %}" class="badge bg-primary text-decoration-none">
+                        <i class="fas fa-clipboard-list"></i> {{ task.project.name }}
+                      </a>
+                    {% endif %}
+                    
+                    {% if task.area %}
+                      <a href="{% url 'area_detail' task.area.pk %}" class="badge bg-secondary text-decoration-none">
+                        <i class="fas fa-layer-group"></i> {{ task.area.name }}
+                      </a>
+                    {% endif %}
+                    
+                    {% if task.event %}
+                      <a href="{% url 'event_detail' task.event.pk %}" class="badge bg-info text-decoration-none">
+                        <i class="fas fa-calendar-alt"></i> {{ task.event.title }}
+                      </a>
+                    {% endif %}
+                    
+                    {% for tag in task.tags.all %}
+                      <span class="badge" style="background-color: {{ tag.color }}">
+                        {{ tag.name }}
+                      </span>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="alert alert-info text-center py-4">
+              <i class="fas fa-check-circle fa-3x mb-3"></i>
+              <h5>All done for today!</h5>
+              <p>You don't have any tasks scheduled for today.</p>
+              <a href="{% url 'task_create' %}" class="btn btn-primary">Create a New Task</a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 

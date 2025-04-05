@@ -1,0 +1,73 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Редактирование профиля{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2>Редактирование профиля</h2>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{% url 'profile' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> К профилю
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Основная информация</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="id_username" class="form-label">Имя пользователя</label>
+                        {{ user_form.username.errors }}
+                        <input type="text" name="username" id="id_username" class="form-control {% if user_form.username.errors %}is-invalid{% endif %}" value="{{ user_form.username.value|default:'' }}" required>
+                        {% if user_form.username.errors %}
+                            <div class="invalid-feedback">{{ user_form.username.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_email" class="form-label">Email</label>
+                        {{ user_form.email.errors }}
+                        <input type="email" name="email" id="id_email" class="form-control {% if user_form.email.errors %}is-invalid{% endif %}" value="{{ user_form.email.value|default:'' }}">
+                        {% if user_form.email.errors %}
+                            <div class="invalid-feedback">{{ user_form.email.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_bio" class="form-label">Биография</label>
+                        {{ profile_form.bio.errors }}
+                        <textarea name="bio" id="id_bio" class="form-control {% if profile_form.bio.errors %}is-invalid{% endif %}" rows="5">{{ profile_form.bio.value|default:'' }}</textarea>
+                        {% if profile_form.bio.errors %}
+                            <div class="invalid-feedback">{{ profile_form.bio.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="submit" class="btn btn-primary">Сохранить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Смена пароля</h5>
+            </div>
+            <div class="card-body">
+                <p>Хотите изменить пароль? <a href="{% url 'password_change' %}">Изменить пароль</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

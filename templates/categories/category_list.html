@@ -1,0 +1,48 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Категории{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2>Категории</h2>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{% url 'category_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus"></i> Добавить категорию
+        </a>
+    </div>
+</div>
+
+{% if categories %}
+    <div class="row">
+        {% for category in categories %}
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ category.name }}</h5>
+                        <p class="card-text">Задач в категории: {{ category.tasks.count }}</p>
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'task_list' %}?category={{ category.id }}" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-list-task"></i> Задачи
+                            </a>
+                            <div>
+                                <a href="{% url 'category_update' category.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-pencil"></i> Изменить
+                                </a>
+                                <a href="{% url 'category_delete' category.id %}" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i> Удалить
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-info">
+        Категории не найдены. <a href="{% url 'category_create' %}" class="alert-link">Создайте новую категорию</a>.
+    </div>
+{% endif %}
+{% endblock %} 

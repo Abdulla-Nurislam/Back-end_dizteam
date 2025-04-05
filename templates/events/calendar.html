@@ -1,0 +1,151 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Calendar{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css" rel="stylesheet">
+<style>
+    #calendar {
+        max-width: 1000px;
+        margin: 0 auto;
+        background-color: white;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .fc-event {
+        cursor: pointer;
+    }
+    .fc-view-harness {
+        min-height: 600px;
+    }
+    .calendar-toolbar {
+        margin-bottom: 20px;
+    }
+    .event-dot {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 5px;
+    }
+    .event-blue {
+        background-color: #3788d8;
+    }
+    .event-green {
+        background-color: #28a745;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Calendar</h5>
+                    <div>
+                        <a href="{% url 'event_create' %}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus"></i> New Event
+                        </a>
+                        <a href="{% url 'task_create' %}" class="btn btn-success btn-sm">
+                            <i class="fas fa-plus"></i> New Task
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="calendar-toolbar mb-3">
+                        <div class="btn-group" role="group">
+                            <button id="today-btn" class="btn btn-outline-secondary">Today</button>
+                            <button id="prev-btn" class="btn btn-outline-secondary"><i class="fas fa-chevron-left"></i></button>
+                            <button id="next-btn" class="btn btn-outline-secondary"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                        <div class="btn-group ms-2" role="group">
+                            <button id="month-view" class="btn btn-outline-secondary active">Month</button>
+                            <button id="week-view" class="btn btn-outline-secondary">Week</button>
+                            <button id="day-view" class="btn btn-outline-secondary">Day</button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <span class="me-3"><span class="event-dot event-blue"></span> Events</span>
+                        <span><span class="event-dot event-green"></span> Tasks</span>
+                    </div>
+
+                    <div id="calendar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            headerToolbar: false, // We'll use our custom toolbar
+            height: 'auto',
+            events: '{% url "get_calendar_events" %}',
+            eventTimeFormat: {
+                hour: '2-digit',
+                minute: '2-digit',
+                meridiem: 'short'
+            },
+            dayMaxEvents: true, // Allow "more" link when too many events
+            eventClick: function(info) {
+                // Navigate to the event/task detail page when clicked
+                if (info.event.url) {
+                    window.location.href = info.event.url;
+                    return false; // Prevent opening in new tab
+                }
+            }
+        });
+        
+        calendar.render();
+        
+        // Custom toolbar functionality
+        document.getElementById('today-btn').addEventListener('click', function() {
+            calendar.today();
+        });
+        
+        document.getElementById('prev-btn').addEventListener('click', function() {
+            calendar.prev();
+        });
+        
+        document.getElementById('next-btn').addEventListener('click', function() {
+            calendar.next();
+        });
+        
+        // View switch buttons
+        document.getElementById('month-view').addEventListener('click', function() {
+            calendar.changeView('dayGridMonth');
+            setActiveButton(this);
+        });
+        
+        document.getElementById('week-view').addEventListener('click', function() {
+            calendar.changeView('timeGridWeek');
+            setActiveButton(this);
+        });
+        
+        document.getElementById('day-view').addEventListener('click', function() {
+            calendar.changeView('timeGridDay');
+            setActiveButton(this);
+        });
+        
+        function setActiveButton(button) {
+            // Remove active class from all buttons
+            document.querySelectorAll('.btn-group button').forEach(function(btn) {
+                btn.classList.remove('active');
+            });
+            // Add active class to clicked button
+            button.classList.add('active');
+        }
+    });
+</script>
+{% endblock %} 

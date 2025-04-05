@@ -1,0 +1,55 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Delete Event{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Confirm Deletion</h5>
+        </div>
+        <div class="card-body">
+          <p class="alert alert-danger">
+            Are you sure you want to delete the event "{{ event.title }}"?
+          </p>
+          
+          <p><strong>Date:</strong> 
+            {% if event.all_day %}
+              All day: {{ event.start_time|date:"F j, Y" }}
+            {% else %}
+              {{ event.start_time|date:"F j, Y, g:i a" }} - 
+              {% if event.start_time.date == event.end_time.date %}
+                {{ event.end_time|date:"g:i a" }}
+              {% else %}
+                {{ event.end_time|date:"F j, Y, g:i a" }}
+              {% endif %}
+            {% endif %}
+          </p>
+          
+          {% if event.repeat != 'none' %}
+            <p><strong>Repeat:</strong> {{ event.get_repeat_display }}</p>
+          {% endif %}
+          
+          {% if event.shared_with.exists %}
+            <div class="alert alert-warning">
+              <i class="fas fa-exclamation-triangle"></i> This event is shared with 
+              {{ event.shared_with.count }} user{{ event.shared_with.count|pluralize }}.
+            </div>
+          {% endif %}
+          
+          <form method="post">
+            {% csrf_token %}
+            <div class="d-flex justify-content-between">
+              <a href="{% url 'event_detail' event.pk %}" class="btn btn-outline-secondary">Cancel</a>
+              <button type="submit" class="btn btn-danger">Delete</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 
