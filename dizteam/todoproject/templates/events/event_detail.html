@@ -1,0 +1,143 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Event Details</h5>
+          <div>
+            {% if event.owner == request.user %}
+              <a href="{% url 'event_update' event.pk %}" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-edit"></i> Edit
+              </a>
+              <a href="{% url 'event_delete' event.pk %}" class="btn btn-outline-danger btn-sm">
+                <i class="fas fa-trash"></i> Delete
+              </a>
+            {% endif %}
+          </div>
+        </div>
+        <div class="card-body">
+          <h3 class="card-title">{{ event.title }}</h3>
+          
+          <div class="mb-3">
+            {% if event.is_past %}
+              <span class="badge bg-secondary">Past Event</span>
+            {% elif event.is_ongoing %}
+              <span class="badge bg-success">Ongoing</span>
+            {% else %}
+              <span class="badge bg-primary">Upcoming</span>
+            {% endif %}
+            
+            {% if event.repeat != 'none' %}
+              <span class="badge bg-info">
+                {{ event.get_repeat_display }}
+                {% if event.repeat_until %}
+                  until {{ event.repeat_until|date:"F j, Y" }}
+                {% endif %}
+              </span>
+            {% endif %}
+          </div>
+          
+          <dl class="row">
+            <dt class="col-sm-3">Date & Time</dt>
+            <dd class="col-sm-9">
+              {% if event.all_day %}
+                All day: {{ event.start_time|date:"F j, Y" }}
+              {% else %}
+                {{ event.start_time|date:"F j, Y, g:i a" }} - 
+                {% if event.start_time.date == event.end_time.date %}
+                  {{ event.end_time|date:"g:i a" }}
+                {% else %}
+                  {{ event.end_time|date:"F j, Y, g:i a" }}
+                {% endif %}
+              {% endif %}
+            </dd>
+            
+            {% if event.location %}
+              <dt class="col-sm-3">Location</dt>
+              <dd class="col-sm-9">{{ event.location }}</dd>
+            {% endif %}
+            
+            <dt class="col-sm-3">Created by</dt>
+            <dd class="col-sm-9">{{ event.owner.username }}</dd>
+            
+            {% if event.shared_with.all %}
+              <dt class="col-sm-3">Shared with</dt>
+              <dd class="col-sm-9">
+                {% for user in event.shared_with.all %}
+                  <span class="badge bg-secondary">{{ user.username }}</span>
+                {% endfor %}
+              </dd>
+            {% endif %}
+            
+            <dt class="col-sm-3">Notification</dt>
+            <dd class="col-sm-9">{{ event.notify_before }} minutes before</dd>
+          </dl>
+          
+          {% if event.description %}
+            <div class="card-text mb-4">
+              <h6>Description</h6>
+              <p>{{ event.description|linebreaks }}</p>
+            </div>
+          {% endif %}
+          
+          <div class="d-flex justify-content-between mt-3">
+            <a href="{% url 'event_list' %}" class="btn btn-outline-secondary">
+              <i class="fas fa-arrow-left"></i> Back to Events
+            </a>
+            <a href="{% url 'calendar' %}" class="btn btn-outline-primary">
+              <i class="fas fa-calendar-alt"></i> View in Calendar
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4">
+      <!-- Related Tasks Section -->
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Related Tasks</h5>
+          <a href="{% url 'task_create' %}" class="btn btn-sm btn-primary">
+            <i class="fas fa-plus"></i> New Task
+          </a>
+        </div>
+        <div class="card-body">
+          {% if related_tasks %}
+            <div class="list-group">
+              {% for task in related_tasks %}
+                <a href="{% url 'task_detail' task.pk %}" class="list-group-item list-group-item-action">
+                  <div class="d-flex w-100 justify-content-between">
+                    <h6 class="mb-1">{{ task.title }}</h6>
+                    <small>
+                      {% if task.is_completed %}
+                        <span class="badge bg-success">Completed</span>
+                      {% else %}
+                        <span class="badge bg-primary">Active</span>
+                      {% endif %}
+                    </small>
+                  </div>
+                  {% if task.deadline %}
+                    <small class="text-muted">
+                      <i class="fas fa-clock"></i> Due: {{ task.deadline|date:"F j, Y, g:i a" }}
+                    </small>
+                  {% endif %}
+                </a>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="alert alert-info">
+              No tasks linked to this event yet.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 

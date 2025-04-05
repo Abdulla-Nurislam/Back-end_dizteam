@@ -1,0 +1,94 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}
+  {% if form.instance.pk %}Edit Tag{% else %}Create Tag{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">{% if form.instance.pk %}Edit Tag{% else %}Create Tag{% endif %}</h5>
+        </div>
+        <div class="card-body">
+          <form method="post" novalidate>
+            {% csrf_token %}
+            
+            <div class="mb-3">
+              <label for="{{ form.name.id_for_label }}" class="form-label">Tag Name</label>
+              {{ form.name.errors }}
+              <input type="text" name="{{ form.name.html_name }}" 
+                     id="{{ form.name.id_for_label }}" 
+                     class="form-control {% if form.name.errors %}is-invalid{% endif %}"
+                     value="{{ form.name.value|default:'' }}" required>
+              <div class="form-text">Enter a short, descriptive name for this tag</div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="{{ form.color.id_for_label }}" class="form-label">Tag Color</label>
+              {{ form.color.errors }}
+              <div class="input-group">
+                <input type="color" name="{{ form.color.html_name }}" 
+                       id="{{ form.color.id_for_label }}" 
+                       class="form-control form-control-color {% if form.color.errors %}is-invalid{% endif %}"
+                       value="{{ form.color.value|default:'#3498db' }}">
+                <span class="input-group-text">{{ form.color.value|default:'#3498db' }}</span>
+              </div>
+              <div class="form-text">Choose a color for this tag</div>
+            </div>
+            
+            <div class="mb-3">
+              <div class="card">
+                <div class="card-header">Preview</div>
+                <div class="card-body">
+                  <span id="tag-preview" class="badge rounded-pill" 
+                        style="background-color: {{ form.color.value|default:'#3498db' }};">
+                    {{ form.name.value|default:'Tag name' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+              </div>
+            {% endif %}
+            
+            <div class="d-flex justify-content-between">
+              <a href="{% url 'tag_list' %}" class="btn btn-outline-secondary">Cancel</a>
+              <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const nameInput = document.getElementById('{{ form.name.id_for_label }}');
+    const colorInput = document.getElementById('{{ form.color.id_for_label }}');
+    const colorText = colorInput.nextElementSibling;
+    const tagPreview = document.getElementById('tag-preview');
+    
+    // Update preview when name changes
+    nameInput.addEventListener('input', function() {
+      tagPreview.textContent = this.value || 'Tag name';
+    });
+    
+    // Update preview and text when color changes
+    colorInput.addEventListener('input', function() {
+      const color = this.value;
+      tagPreview.style.backgroundColor = color;
+      colorText.textContent = color;
+    });
+  });
+</script>
+{% endblock %} 

@@ -1,0 +1,51 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Projects{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Projects</h5>
+          <a href="{% url 'project_create' %}" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus"></i> New Project
+          </a>
+        </div>
+        <div class="card-body">
+          {% if projects %}
+            <div class="list-group">
+              {% for project in projects %}
+                <a href="{% url 'project_detail' project.pk %}" class="list-group-item list-group-item-action">
+                  <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{ project.name }}</h5>
+                    <small class="text-muted">
+                      {% with project.tasks.count as task_count %}
+                        {{ task_count }} task{{ task_count|pluralize }}
+                      {% endwith %}
+                    </small>
+                  </div>
+                  {% if project.description %}
+                    <p class="mb-1">{{ project.description|truncatechars:100 }}</p>
+                  {% endif %}
+                  {% if project.area %}
+                    <small class="badge bg-secondary">
+                      <i class="fas fa-layer-group"></i> {{ project.area.name }}
+                    </small>
+                  {% endif %}
+                </a>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="alert alert-info">
+              No projects found. <a href="{% url 'project_create' %}">Create your first project</a> to organize your tasks.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 

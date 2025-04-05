@@ -1,0 +1,78 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Areas{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row mb-4">
+    <div class="col d-flex justify-content-between align-items-center">
+      <h2>Areas</h2>
+      <a href="{% url 'area_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus me-1"></i> New Area
+      </a>
+    </div>
+  </div>
+
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% if area_list %}
+      {% for area in area_list %}
+        <div class="col">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+              <div class="d-flex justify-content-between mb-3">
+                <h5 class="card-title text-primary">{{ area.name }}</h5>
+                <div class="dropdown">
+                  <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="areaDropdown{{ area.pk }}" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-ellipsis-v"></i>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="areaDropdown{{ area.pk }}">
+                    <li><a class="dropdown-item" href="{% url 'area_detail' area.pk %}"><i class="fas fa-eye me-2"></i>View</a></li>
+                    <li><a class="dropdown-item" href="{% url 'area_update' area.pk %}"><i class="fas fa-edit me-2"></i>Edit</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="{% url 'area_delete' area.pk %}"><i class="fas fa-trash me-2"></i>Delete</a></li>
+                  </ul>
+                </div>
+              </div>
+              
+              <p class="card-text text-muted">
+                {{ area.description|default:"No description"|truncatechars:100 }}
+              </p>
+              
+              <div class="mt-3">
+                <span class="badge bg-light text-dark border">
+                  <i class="fas fa-folder me-1"></i> {{ area.project_set.count }} project{{ area.project_set.count|pluralize }}
+                </span>
+                
+                <span class="badge bg-light text-dark border ms-2">
+                  <i class="fas fa-tasks me-1"></i> 
+                  {% with task_count=area.get_total_tasks %}
+                    {{ task_count }} task{{ task_count|pluralize }}
+                  {% endwith %}
+                </span>
+              </div>
+            </div>
+            <div class="card-footer bg-transparent border-0">
+              <a href="{% url 'area_detail' area.pk %}" class="btn btn-sm btn-outline-primary">
+                View details
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="col-12">
+        <div class="alert alert-info">
+          <p class="mb-0">You haven't created any areas yet. Areas help you organize your projects and tasks by category or life domain.</p>
+          <hr>
+          <p class="mb-0">
+            <a href="{% url 'area_create' %}" class="btn btn-primary">
+              <i class="fas fa-plus me-1"></i> Create your first area
+            </a>
+          </p>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %} 

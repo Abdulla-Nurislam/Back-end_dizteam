@@ -1,0 +1,472 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Calendar{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center bg-light">
+          <div>
+            <h4 class="mb-0 d-inline-block">
+              <span id="current-month-year">{{ current_month_name }} {{ current_year }}</span>
+            </h4>
+            <div class="ms-3 d-inline-block">
+              <span class="badge bg-primary rounded-pill">{{ today|date:"d F Y" }}</span>
+            </div>
+          </div>
+          
+          <div class="btn-group">
+            <a href="{% url 'calendar' %}?month={{ prev_month }}&year={{ prev_year }}" class="btn btn-outline-secondary">
+              <i class="fas fa-chevron-left"></i>
+            </a>
+            <a href="{% url 'calendar' %}" class="btn btn-outline-primary">Today</a>
+            <a href="{% url 'calendar' %}?month={{ next_month }}&year={{ next_year }}" class="btn btn-outline-secondary">
+              <i class="fas fa-chevron-right"></i>
+            </a>
+          </div>
+          
+          <div class="btn-group view-options">
+            <a href="{% url 'calendar' %}?view=month" class="btn btn-outline-primary {% if calendar_view == 'month' %}active{% endif %}">Month</a>
+            <a href="{% url 'calendar' %}?view=week" class="btn btn-outline-primary {% if calendar_view == 'week' %}active{% endif %}">Week</a>
+            <a href="{% url 'calendar' %}?view=day" class="btn btn-outline-primary {% if calendar_view == 'day' %}active{% endif %}">Day</a>
+          </div>
+          
+          <div>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newTaskModal">
+              <i class="fas fa-plus me-1"></i> Task
+            </button>
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newEventModal">
+              <i class="fas fa-calendar-plus me-1"></i> Event
+            </button>
+          </div>
+        </div>
+        
+        <div class="card-body p-0">
+          {% if calendar_view == 'month' %}
+            <!-- Month View -->
+            <div class="table-responsive">
+              <table class="table table-bordered calendar-table mb-0">
+                <thead>
+                  <tr class="text-center">
+                    <th>Sunday</th>
+                    <th>Monday</th>
+                    <th>Tuesday</th>
+                    <th>Wednesday</th>
+                    <th>Thursday</th>
+                    <th>Friday</th>
+                    <th>Saturday</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for week in calendar_weeks %}
+                    <tr style="height: 120px;">
+                      {% for day in week %}
+                        <td class="position-relative {% if day.date == today %}bg-light border-primary{% endif %} {% if day.month != current_month %}text-muted{% endif %}">
+                          <div class="d-flex justify-content-between">
+                            <span class="fw-bold">{{ day.date|date:"j" }}</span>
+                            {% if day.date == today %}
+                              <span class="badge bg-primary">Today</span>
+                            {% endif %}
+                          </div>
+                          
+                          <div class="calendar-items">
+                            {% for task in day.tasks %}
+                              <div class="calendar-item task-item mb-1">
+                                <a href="{% url 'task_detail' task.pk %}" class="d-block text-truncate text-decoration-none p-1 rounded {% if task.completed %}text-decoration-line-through text-muted{% endif %}" 
+                                   style="background-color: rgba(0, 123, 255, 0.1);">
+                                  <i class="fas fa-tasks me-1"></i> {{ task.title }}
+                                </a>
+                              </div>
+                            {% endfor %}
+                            
+                            {% for event in day.events %}
+                              <div class="calendar-item event-item mb-1">
+                                <a href="#" class="d-block text-truncate text-decoration-none p-1 rounded" 
+                                   style="background-color: rgba(40, 167, 69, 0.1);">
+                                  <i class="fas fa-calendar-alt me-1"></i> {{ event.title }}
+                                </a>
+                              </div>
+                            {% endfor %}
+                          </div>
+                          
+                          {% if day.has_more %}
+                            <div class="mt-1 text-center">
+                              <small class="text-muted">+{{ day.more_count }} more</small>
+                            </div>
+                          {% endif %}
+                          
+                          <a href="{% url 'calendar' %}?view=day&date={{ day.date|date:'Y-m-d' }}" 
+                             class="stretched-link" title="View this day"></a>
+                        </td>
+                      {% endfor %}
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            
+          {% elif calendar_view == 'week' %}
+            <!-- Week View -->
+            <div class="week-view p-3">
+              <div class="d-flex align-items-center mb-3">
+                <h5 class="mb-0">Week of {{ week_start|date:"M j" }} - {{ week_end|date:"M j, Y" }}</h5>
+              </div>
+              
+              <div class="table-responsive">
+                <table class="table table-bordered mb-0">
+                  <thead>
+                    <tr>
+                      <th style="width: 80px;">Time</th>
+                      {% for day in week_days %}
+                        <th class="text-center {% if day.date == today %}bg-light border-primary{% endif %}">
+                          <div>{{ day.date|date:"D" }}</div>
+                          <div class="fw-bold">{{ day.date|date:"j" }}</div>
+                          {% if day.date == today %}
+                            <span class="badge bg-primary">Today</span>
+                          {% endif %}
+                        </th>
+                      {% endfor %}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for hour in hours %}
+                      <tr>
+                        <td class="text-muted align-middle">
+                          {{ hour }}:00
+                        </td>
+                        {% for day in week_days %}
+                          <td class="position-relative {% if day.date == today %}bg-light{% endif %}" style="height: 60px;">
+                            {% for event in day.events %}
+                              {% if event.start_hour == hour %}
+                                <div class="calendar-item event-item p-1 rounded w-100" 
+                                     style="background-color: rgba(40, 167, 69, 0.1);">
+                                  <a href="#" class="text-decoration-none">
+                                    {{ event.title }}
+                                  </a>
+                                </div>
+                              {% endif %}
+                            {% endfor %}
+                          </td>
+                        {% endfor %}
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              
+              <div class="mt-4">
+                <h6>Tasks for this week:</h6>
+                <div class="list-group">
+                  {% for day in week_days %}
+                    {% if day.tasks %}
+                      <div class="list-group-item">
+                        <div class="fw-bold mb-2">{{ day.date|date:"l, F j" }}</div>
+                        {% for task in day.tasks %}
+                          <div class="d-flex justify-content-between align-items-center mb-1 {% if task.completed %}text-muted{% endif %}">
+                            <div>
+                              {% if task.completed %}
+                                <i class="fas fa-check-circle text-success me-1"></i>
+                              {% else %}
+                                <i class="far fa-circle me-1"></i>
+                              {% endif %}
+                              <a href="{% url 'task_detail' task.pk %}" class="{% if task.completed %}text-muted text-decoration-line-through{% endif %}">
+                                {{ task.title }}
+                              </a>
+                            </div>
+                            <div>
+                              {% if task.project %}
+                                <span class="badge bg-info">{{ task.project.name }}</span>
+                              {% endif %}
+                              {% if task.tags.exists %}
+                                {% for tag in task.tags.all %}
+                                  <span class="badge" style="background-color: {{ tag.color }};">{{ tag.name }}</span>
+                                {% endfor %}
+                              {% endif %}
+                            </div>
+                          </div>
+                        {% endfor %}
+                      </div>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+            
+          {% elif calendar_view == 'day' %}
+            <!-- Day View -->
+            <div class="day-view p-3">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">{{ selected_date|date:"l, F j, Y" }}</h5>
+                <div>
+                  <a href="{% url 'calendar' %}?view=day&date={{ prev_day|date:'Y-m-d' }}" class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-chevron-left"></i> Previous Day
+                  </a>
+                  <a href="{% url 'calendar' %}?view=day&date={{ next_day|date:'Y-m-d' }}" class="btn btn-sm btn-outline-secondary">
+                    Next Day <i class="fas fa-chevron-right"></i>
+                  </a>
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="col-md-8">
+                  <div class="card">
+                    <div class="card-header">
+                      <h6 class="mb-0">Schedule</h6>
+                    </div>
+                    <div class="card-body p-0">
+                      <div class="table-responsive">
+                        <table class="table mb-0">
+                          <tbody>
+                            {% for hour in hours %}
+                              <tr>
+                                <td style="width: 80px;" class="text-muted">{{ hour }}:00</td>
+                                <td class="position-relative" style="height: 60px;">
+                                  {% for event in day_events %}
+                                    {% if event.start_hour == hour %}
+                                      <div class="calendar-item event-item p-2 rounded w-100" 
+                                           style="background-color: rgba(40, 167, 69, 0.1);">
+                                        <div class="d-flex justify-content-between">
+                                          <div>
+                                            <i class="fas fa-calendar-alt me-1"></i>
+                                            <a href="#" class="text-decoration-none">{{ event.title }}</a>
+                                          </div>
+                                          <small>{{ event.start_time|date:"g:i A" }} - {{ event.end_time|date:"g:i A" }}</small>
+                                        </div>
+                                        {% if event.description %}
+                                          <div class="small text-muted mt-1">{{ event.description|truncatechars:50 }}</div>
+                                        {% endif %}
+                                      </div>
+                                    {% endif %}
+                                  {% endfor %}
+                                </td>
+                              </tr>
+                            {% endfor %}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-md-4">
+                  <div class="card mb-3">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                      <h6 class="mb-0">Tasks for Today</h6>
+                      <a href="{% url 'task_create' %}?deadline={{ selected_date|date:'Y-m-d' }}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus"></i>
+                      </a>
+                    </div>
+                    <div class="card-body p-0">
+                      {% if day_tasks %}
+                        <div class="list-group list-group-flush">
+                          {% for task in day_tasks %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                              <div>
+                                <div class="form-check">
+                                  <input class="form-check-input" type="checkbox" id="task-{{ task.pk }}" 
+                                         {% if task.completed %}checked{% endif %}>
+                                  <label class="form-check-label {% if task.completed %}text-muted text-decoration-line-through{% endif %}" for="task-{{ task.pk }}">
+                                    <a href="{% url 'task_detail' task.pk %}" class="text-decoration-none">{{ task.title }}</a>
+                                  </label>
+                                </div>
+                                {% if task.project %}
+                                  <small class="badge bg-info">{{ task.project.name }}</small>
+                                {% endif %}
+                              </div>
+                              <div>
+                                {% if task.tags.exists %}
+                                  {% for tag in task.tags.all %}
+                                    <span class="badge" style="background-color: {{ tag.color }};">{{ tag.name }}</span>
+                                  {% endfor %}
+                                {% endif %}
+                              </div>
+                          {% endfor %}
+                        </div>
+                      {% else %}
+                        <div class="p-3 text-center text-muted">
+                          <p>No tasks for this day</p>
+                          <a href="{% url 'task_create' %}?deadline={{ selected_date|date:'Y-m-d' }}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-plus me-1"></i> Add Task
+                          </a>
+                        </div>
+                      {% endif %}
+                    </div>
+                  </div>
+                  
+                  <div class="card">
+                    <div class="card-header">
+                      <h6 class="mb-0">Notes for {{ selected_date|date:"M j" }}</h6>
+                    </div>
+                    <div class="card-body">
+                      <form method="post" action="#">
+                        {% csrf_token %}
+                        <input type="hidden" name="date" value="{{ selected_date|date:'Y-m-d' }}">
+                        <div class="mb-3">
+                          <textarea class="form-control" name="note" rows="4" placeholder="Add notes for this day...">{{ day_note }}</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm">Save Note</button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- New Task Modal -->
+<div class="modal fade" id="newTaskModal" tabindex="-1" aria-labelledby="newTaskModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="newTaskModalLabel">Create New Task</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="post" action="{% url 'task_create' %}">
+        <div class="modal-body">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="taskTitle" class="form-label">Task Title</label>
+            <input type="text" class="form-control" id="taskTitle" name="title" required>
+          </div>
+          <div class="mb-3">
+            <label for="taskDueDate" class="form-label">Due Date</label>
+            <input type="date" class="form-control" id="taskDueDate" name="deadline" value="{{ selected_date|date:'Y-m-d' }}">
+          </div>
+          <div class="mb-3">
+            <label for="taskProject" class="form-label">Project (Optional)</label>
+            <select class="form-select" id="taskProject" name="project">
+              <option value="">No Project</option>
+              {% for project in projects %}
+                <option value="{{ project.pk }}">{{ project.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- New Event Modal -->
+<div class="modal fade" id="newEventModal" tabindex="-1" aria-labelledby="newEventModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="newEventModalLabel">Create New Event</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="post" action="#">
+        <div class="modal-body">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="eventTitle" class="form-label">Event Title</label>
+            <input type="text" class="form-control" id="eventTitle" name="title" required>
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+              <label for="eventDate" class="form-label">Date</label>
+              <input type="date" class="form-control" id="eventDate" name="date" value="{{ selected_date|date:'Y-m-d' }}">
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+              <label for="eventStartTime" class="form-label">Start Time</label>
+              <input type="time" class="form-control" id="eventStartTime" name="start_time" required>
+            </div>
+            <div class="col">
+              <label for="eventEndTime" class="form-label">End Time</label>
+              <input type="time" class="form-control" id="eventEndTime" name="end_time" required>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="eventDescription" class="form-label">Description (Optional)</label>
+            <textarea class="form-control" id="eventDescription" name="description" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">Create Event</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .calendar-table th, .calendar-table td {
+    width: 14.28%;
+  }
+  
+  .calendar-table td {
+    padding: 6px;
+    height: 100px;
+    overflow: hidden;
+  }
+  
+  .calendar-items {
+    overflow: hidden;
+    max-height: 80px;
+  }
+  
+  .calendar-item {
+    font-size: 0.8rem;
+  }
+  
+  .calendar-item.task-item a {
+    color: #0d6efd;
+  }
+  
+  .calendar-item.event-item a {
+    color: #198754;
+  }
+  
+  .week-view .table td, .day-view .table td {
+    padding: 4px;
+    vertical-align: top;
+  }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Toggle task completion
+    document.querySelectorAll('.form-check-input').forEach(function(checkbox) {
+      checkbox.addEventListener('change', function() {
+        const taskId = this.id.split('-')[1];
+        const label = this.nextElementSibling;
+        
+        fetch(`/tasks/${taskId}/toggle-completion/`, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.completed) {
+            label.classList.add('text-muted', 'text-decoration-line-through');
+          } else {
+            label.classList.remove('text-muted', 'text-decoration-line-through');
+          }
+        });
+      });
+    });
+  });
+</script>
+{% endblock %} 

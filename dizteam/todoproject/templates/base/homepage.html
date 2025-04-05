@@ -1,36 +1,36 @@
 {% extends 'base/base.html' %}
 
-{% block title %}Управление задачами{% endblock %}
+{% block title %}Task & Calendar Management{% endblock %}
 
 {% block content %}
 <div class="px-4 py-5 my-5 text-center">
-    <h1 class="display-5 fw-bold mb-4">Приложение для управления задачами</h1>
+    <h1 class="display-5 fw-bold mb-4">Task and Event Management App</h1>
     <div class="col-lg-6 mx-auto">
-        <p class="lead mb-4">Организуйте свои задачи, повысьте продуктивность и никогда не теряйте контроль над своим списком дел.</p>
+        <p class="lead mb-4">Organize your tasks and events, boost productivity, and never lose track of your schedule with our comprehensive management solution.</p>
         <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
             {% if user.is_authenticated %}
-                <a href="{% url 'task_list' %}" class="btn btn-primary btn-lg px-4 gap-3">Мои задачи</a>
-                <a href="{% url 'category_list' %}" class="btn btn-outline-secondary btn-lg px-4">Категории</a>
+                <a href="{% url 'calendar' %}" class="btn btn-primary btn-lg px-4 gap-3">View Calendar</a>
+                <a href="{% url 'today_tasks' %}" class="btn btn-success btn-lg px-4">Today's Tasks</a>
             {% else %}
-                <a href="{% url 'login' %}" class="btn btn-primary btn-lg px-4 gap-3">Войти</a>
-                <a href="{% url 'register' %}" class="btn btn-outline-secondary btn-lg px-4">Регистрация</a>
+                <a href="{% url 'login' %}" class="btn btn-primary btn-lg px-4 gap-3">Login</a>
+                <a href="{% url 'register' %}" class="btn btn-outline-secondary btn-lg px-4">Register</a>
             {% endif %}
         </div>
     </div>
 </div>
 
 <div class="container">
-    <div class="row row-cols-1 row-cols-md-3 mb-5">
+    <div class="row row-cols-1 row-cols-md-4 mb-5">
         <div class="col mb-4">
             <div class="card h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-center mb-3">
                         <span class="display-1 text-primary">
-                            <i class="bi bi-list-check"></i>
+                            <i class="fas fa-tasks"></i>
                         </span>
                     </div>
-                    <h2 class="card-title text-center">Управляйте задачами</h2>
-                    <p class="card-text">Создавайте, редактируйте и отслеживайте свои задачи. Отмечайте выполненные и следите за прогрессом.</p>
+                    <h2 class="card-title text-center">Manage Tasks</h2>
+                    <p class="card-text">Create, edit, and track your tasks. Mark completed tasks and monitor your progress.</p>
                 </div>
             </div>
         </div>
@@ -38,12 +38,12 @@
             <div class="card h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-center mb-3">
-                        <span class="display-1 text-primary">
-                            <i class="bi bi-folder"></i>
+                        <span class="display-1 text-success">
+                            <i class="fas fa-calendar-alt"></i>
                         </span>
                     </div>
-                    <h2 class="card-title text-center">Организуйте по категориям</h2>
-                    <p class="card-text">Группируйте задачи по категориям для лучшей организации и быстрого поиска.</p>
+                    <h2 class="card-title text-center">Calendar Integration</h2>
+                    <p class="card-text">View tasks and events in a calendar. Schedule events and set up reminders and recurring events.</p>
                 </div>
             </div>
         </div>
@@ -51,15 +51,93 @@
             <div class="card h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-center mb-3">
-                        <span class="display-1 text-primary">
-                            <i class="bi bi-person"></i>
+                        <span class="display-1 text-info">
+                            <i class="fas fa-folder"></i>
                         </span>
                     </div>
-                    <h2 class="card-title text-center">Персональный профиль</h2>
-                    <p class="card-text">Управляйте своим профилем, отслеживайте статистику задач и настраивайте персональные предпочтения.</p>
+                    <h2 class="card-title text-center">Advanced Organization</h2>
+                    <p class="card-text">Group tasks by projects, areas, tags, and categories for better organization and quick access.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-center mb-3">
+                        <span class="display-1 text-warning">
+                            <i class="fas fa-bell"></i>
+                        </span>
+                    </div>
+                    <h2 class="card-title text-center">Notifications</h2>
+                    <p class="card-text">Receive notifications for upcoming events and task deadlines to stay on top of your schedule.</p>
                 </div>
             </div>
         </div>
     </div>
+    
+    {% if user.is_authenticated %}
+    <div class="row mb-5">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'task_create' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-plus"></i> Create New Task
+                        </a>
+                        <a href="{% url 'event_create' %}" class="btn btn-outline-success">
+                            <i class="fas fa-plus"></i> Schedule New Event
+                        </a>
+                        <a href="{% url 'project_create' %}" class="btn btn-outline-info">
+                            <i class="fas fa-plus"></i> Create New Project
+                        </a>
+                        <a href="{% url 'task_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-list"></i> View All Tasks
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Features Highlight</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex">
+                        <i class="fas fa-calendar-day text-primary me-3 mt-1"></i>
+                        <div>
+                            <strong>Today View</strong>
+                            <p class="mb-0 text-muted">Focus on tasks that matter today.</p>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex">
+                        <i class="fas fa-sync text-success me-3 mt-1"></i>
+                        <div>
+                            <strong>Repeating Events</strong>
+                            <p class="mb-0 text-muted">Set up daily, weekly, monthly, or yearly recurring events.</p>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex">
+                        <i class="fas fa-share-alt text-info me-3 mt-1"></i>
+                        <div>
+                            <strong>Sharing</strong>
+                            <p class="mb-0 text-muted">Share events with other users for better collaboration.</p>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex">
+                        <i class="fas fa-tags text-warning me-3 mt-1"></i>
+                        <div>
+                            <strong>Tagging System</strong>
+                            <p class="mb-0 text-muted">Use colorful tags to categorize and filter your tasks.</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %} 

@@ -18,6 +18,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
+from tasks import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,4 +26,7 @@ urlpatterns = [
     path('tasks/', include('tasks.urls')),
     path('categories/', include('categories.urls')),
     path('users/', include('users.urls')),
+    path('events/', include('events.urls')),
+    path('calendar/', views.calendar_view, name='calendar'),
+    path('debug/', views.debug_view, name='main_debug'),
 ]

@@ -1,0 +1,50 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Delete Area{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Delete Area</h5>
+        </div>
+        <div class="card-body">
+          <p>Are you sure you want to delete the area <strong>{{ object.name }}</strong>?</p>
+          
+          <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>Warning:</strong> This will remove this area, but will not delete associated projects or tasks.
+            
+            <ul class="mt-2 mb-0">
+              {% if object.project_set.exists %}
+              <li>
+                {{ object.project_set.count }} project{{ object.project_set.count|pluralize }} will no longer be assigned to an area.
+              </li>
+              {% endif %}
+              
+              {% with task_count=object.get_total_tasks %}
+              {% if task_count > 0 %}
+              <li>
+                {{ task_count }} task{{ task_count|pluralize }} will no longer be associated with this area.
+              </li>
+              {% endif %}
+              {% endwith %}
+            </ul>
+          </div>
+          
+          <form method="post">
+            {% csrf_token %}
+            <div class="d-flex justify-content-between">
+              <a href="{% url 'area_detail' object.pk %}" class="btn btn-outline-secondary">Cancel</a>
+              <button type="submit" class="btn btn-danger">Delete</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 
