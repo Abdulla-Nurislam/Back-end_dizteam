@@ -1,16 +1,11 @@
 {% extends 'base/base.html' %}
 
-{% block title %}Мои задачи{% endblock %}
+{% block title %}My Tasks{% endblock %}
 
 {% block content %}
 <div class="row mb-4">
     <div class="col-md-8">
-        <h2>Мои задачи</h2>
-    </div>
-    <div class="col-md-4 text-end">
-        <a href="{% url 'task_create' %}" class="btn btn-primary">
-            <i class="bi bi-plus"></i> Добавить задачу
-        </a>
+        <h2>My Tasks</h2>
     </div>
 </div>
 
@@ -19,7 +14,7 @@
         <form method="get" class="row g-3">
             <div class="col-md-4">
                 <select name="category" class="form-select" onchange="this.form.submit()">
-                    <option value="">Все категории</option>
+                    <option value="">All Categories</option>
                     {% for category in categories %}
                         <option value="{{ category.id }}" {% if selected_category == category.id %}selected{% endif %}>
                             {{ category.name }}
@@ -29,15 +24,15 @@
             </div>
             <div class="col-md-4">
                 <select name="status" class="form-select" onchange="this.form.submit()">
-                    <option value="">Все статусы</option>
-                    <option value="completed" {% if status == 'completed' %}selected{% endif %}>Выполненные</option>
-                    <option value="active" {% if status == 'active' %}selected{% endif %}>Активные</option>
+                    <option value="">All Statuses</option>
+                    <option value="completed" {% if status == 'completed' %}selected{% endif %}>Completed</option>
+                    <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
                 </select>
             </div>
             <div class="col-md-4">
                 <div class="input-group">
-                    <input type="text" name="search" class="form-control" placeholder="Поиск задач" value="{{ search_query }}">
-                    <button class="btn btn-outline-secondary" type="submit">Найти</button>
+                    <input type="text" name="search" class="form-control" placeholder="Search tasks" value="{{ search_query }}">
+                    <button class="btn btn-outline-secondary" type="submit">Search</button>
                 </div>
             </div>
         </form>
@@ -50,7 +45,7 @@
             <a href="{% url 'task_detail' task.id %}" class="list-group-item list-group-item-action {% if task.is_completed %}task-completed{% endif %}">
                 <div class="d-flex w-100 justify-content-between">
                     <h5 class="mb-1">{{ task.title }}</h5>
-                    <small>{{ task.created_date|date:"d.m.Y H:i" }}</small>
+                    <small>{{ task.created_date|date:"M d, Y" }}</small>
                 </div>
                 {% if task.description %}
                     <p class="mb-1">{{ task.description|truncatechars:100 }}</p>
@@ -61,24 +56,24 @@
                             <span class="badge bg-info">{{ task.category.name }}</span>
                         {% endif %}
                         {% if task.is_completed %}
-                            <span class="badge bg-success">Выполнено</span>
+                            <span class="badge bg-success">Completed</span>
                         {% else %}
-                            <span class="badge bg-warning">В процессе</span>
+                            <span class="badge bg-warning">In progress</span>
                         {% endif %}
                     </span>
                     <div>
-                        <a href="{% url 'task_toggle' task.id %}" class="btn btn-sm btn-outline-secondary">
+                        <a href="{% url 'task_toggle_completion' task.id %}" class="btn btn-sm btn-outline-secondary">
                             {% if task.is_completed %}
-                                <i class="bi bi-x-circle"></i> Отменить выполнение
+                                <i class="bi bi-x-circle"></i> Mark incomplete
                             {% else %}
-                                <i class="bi bi-check-circle"></i> Отметить как выполненное
+                                <i class="bi bi-check-circle"></i> Mark complete
                             {% endif %}
                         </a>
                         <a href="{% url 'task_update' task.id %}" class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-pencil"></i> Изменить
+                            <i class="bi bi-pencil"></i> Edit
                         </a>
                         <a href="{% url 'task_delete' task.id %}" class="btn btn-sm btn-outline-danger">
-                            <i class="bi bi-trash"></i> Удалить
+                            <i class="bi bi-trash"></i> Delete
                         </a>
                     </div>
                 </div>
@@ -87,7 +82,7 @@
     </div>
 {% else %}
     <div class="alert alert-info">
-        Задачи не найдены. <a href="{% url 'task_create' %}" class="alert-link">Создайте новую задачу</a>.
+        No tasks found. <a href="{% url 'task_create' %}" class="alert-link">Create a new task</a>.
     </div>
 {% endif %}
 {% endblock %} 

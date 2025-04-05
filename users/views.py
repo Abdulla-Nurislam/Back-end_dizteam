@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
 from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
 
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from .models import Profile
@@ -13,13 +14,14 @@ class CustomLoginView(LoginView):
     redirect_authenticated_user = True
 
 class CustomLogoutView(LogoutView):
-    next_page = reverse_lazy('login')
+    next_page = reverse_lazy('home')
+    http_method_names = ['get', 'post', 'head', 'options']
 
 class CustomPasswordChangeView(PasswordChangeView):
     success_url = reverse_lazy('profile')
     
     def form_valid(self, form):
-        messages.success(self.request, 'Пароль успешно изменен!')
+        messages.success(self.request, 'Password changed successfully!')
         return super().form_valid(form)
 
 def register(request):
@@ -31,7 +33,7 @@ def register(request):
         if form.is_valid():
             form.save()
             username = form.cleaned_data.get('username')
-            messages.success(request, f'Аккаунт создан для {username}! Теперь вы можете войти.')
+            messages.success(request, f'Account created for {username}! You can now log in.')
             return redirect('login')
     else:
         form = UserRegisterForm()
@@ -63,7 +65,7 @@ def edit_profile(request):
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
-            messages.success(request, 'Ваш профиль успешно обновлен!')
+            messages.success(request, 'Your profile has been updated successfully!')
             return redirect('profile')
     else:
         user_form = UserUpdateForm(instance=request.user)

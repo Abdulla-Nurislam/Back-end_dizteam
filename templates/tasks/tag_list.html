@@ -1,0 +1,58 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Tags{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Tags</h5>
+          <a href="{% url 'tag_create' %}" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus"></i> New Tag
+          </a>
+        </div>
+        <div class="card-body">
+          {% if tags %}
+            <div class="row">
+              {% for tag in tags %}
+                <div class="col-md-4 mb-3">
+                  <div class="card h-100" style="border-left: 5px solid {{ tag.color }};">
+                    <div class="card-body">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">{{ tag.name }}</h5>
+                        <span class="badge rounded-pill" style="background-color: {{ tag.color }}; width: 25px; height: 25px;">&nbsp;</span>
+                      </div>
+                      
+                      <p class="card-text mt-2">
+                        {% with tag.tasks.count as task_count %}
+                          <small class="text-muted">Used in {{ task_count }} task{{ task_count|pluralize }}</small>
+                        {% endwith %}
+                      </p>
+                      
+                      <div class="d-flex justify-content-end mt-2">
+                        <a href="{% url 'tag_update' tag.pk %}" class="btn btn-sm btn-outline-primary me-2">
+                          <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <a href="{% url 'tag_delete' tag.pk %}" class="btn btn-sm btn-outline-danger">
+                          <i class="fas fa-trash"></i> Delete
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="alert alert-info">
+              No tags found. <a href="{% url 'tag_create' %}">Create your first tag</a> to categorize tasks.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 

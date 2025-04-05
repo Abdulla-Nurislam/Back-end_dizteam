@@ -1,0 +1,229 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Area: {{ object.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-12 mb-4">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">
+            {{ object.name }}
+            <span class="text-muted fs-6">Area</span>
+          </h5>
+          <div>
+            <a href="{% url 'area_update' object.pk %}" class="btn btn-sm btn-outline-primary me-1">
+              <i class="fas fa-edit"></i> Edit
+            </a>
+            <a href="{% url 'area_delete' object.pk %}" class="btn btn-sm btn-outline-danger">
+              <i class="fas fa-trash"></i> Delete
+            </a>
+          </div>
+        </div>
+        <div class="card-body">
+          {% if object.description %}
+            <h6 class="fw-bold">Description:</h6>
+            <p>{{ object.description }}</p>
+          {% else %}
+            <p class="text-muted fst-italic">No description provided.</p>
+          {% endif %}
+          
+          <div class="row mt-4">
+            <div class="col-md-6">
+              <div class="card border-light mb-3">
+                <div class="card-header bg-transparent">
+                  <h6 class="mb-0">Projects</h6>
+                </div>
+                <div class="card-body">
+                  <p class="mb-2">
+                    <span class="badge bg-secondary">{{ object.project_set.count }}</span> 
+                    project{{ object.project_set.count|pluralize }} in this area
+                  </p>
+                  {% if object.project_set.exists %}
+                    <a href="{% url 'project_create' %}?area={{ object.pk }}" class="btn btn-sm btn-outline-primary">
+                      <i class="fas fa-plus me-1"></i> Add Project
+                    </a>
+                  {% else %}
+                    <div class="alert alert-light mb-0">
+                      <p class="mb-2">No projects in this area yet.</p>
+                      <a href="{% url 'project_create' %}?area={{ object.pk }}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-plus me-1"></i> Add Project
+                      </a>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card border-light mb-3">
+                <div class="card-header bg-transparent">
+                  <h6 class="mb-0">Tasks</h6>
+                </div>
+                <div class="card-body">
+                  <p class="mb-2">
+                    <span class="badge bg-secondary">
+                      {% with task_count=object.get_total_tasks %}
+                        {{ task_count }}
+                      {% endwith %}
+                    </span> 
+                    task{{ object.get_total_tasks|pluralize }} related to this area
+                  </p>
+                  
+                  <div class="progress mb-3" style="height: 10px;">
+                    {% with completed=object.get_completed_tasks_count total=object.get_total_tasks %}
+                      {% if total > 0 %}
+                        {% with percentage=completed|floatformat:0 %}
+                          <div class="progress-bar bg-success" role="progressbar" style="width: {{ percentage }}%;" 
+                              aria-valuenow="{{ percentage }}" aria-valuemin="0" aria-valuemax="100">
+                            {{ percentage }}%
+                          </div>
+                        {% endwith %}
+                      {% else %}
+                        <div class="progress-bar" role="progressbar" style="width: 0%;" 
+                            aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                      {% endif %}
+                    {% endwith %}
+                  </div>
+                  
+                  <a href="{% url 'task_create' %}?area={{ object.pk }}" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-plus me-1"></i> Add Task
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer text-end">
+          <a href="{% url 'area_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Areas
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Projects Section -->
+  {% if object.project_set.exists %}
+  <div class="row mb-4">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Projects in {{ object.name }}</h5>
+          <a href="{% url 'project_create' %}?area={{ object.pk }}" class="btn btn-sm btn-primary">
+            <i class="fas fa-plus"></i> New Project
+          </a>
+        </div>
+        <div class="card-body">
+          <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for project in object.project_set.all %}
+              <div class="col">
+                <div class="card h-100 shadow-sm">
+                  <div class="card-body">
+                    <h5 class="card-title">
+                      <a href="{% url 'project_detail' project.pk %}" class="text-decoration-none">{{ project.name }}</a>
+                    </h5>
+                    {% if project.description %}
+                      <p class="card-text">{{ project.description|truncatechars:100 }}</p>
+                    {% endif %}
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                      <div>
+                        <span class="badge bg-info">
+                          {{ project.task_set.count }} task{{ project.task_set.count|pluralize }}
+                        </span>
+                      </div>
+                      <div>
+                        <a href="{% url 'project_detail' project.pk %}" class="btn btn-sm btn-outline-primary">View</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+  
+  <!-- Tasks Section -->
+  {% with tasks=object.get_related_tasks %}
+    {% if tasks %}
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Tasks in {{ object.name }}</h5>
+            <a href="{% url 'task_create' %}?area={{ object.pk }}" class="btn btn-sm btn-primary">
+              <i class="fas fa-plus"></i> New Task
+            </a>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Project</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for task in tasks %}
+                    <tr>
+                      <td>
+                        <a href="{% url 'task_detail' task.pk %}" class="text-decoration-none">{{ task.title }}</a>
+                      </td>
+                      <td>
+                        {% if task.project %}
+                          <a href="{% url 'project_detail' task.project.pk %}" class="badge bg-info text-decoration-none">
+                            {{ task.project.name }}
+                          </a>
+                        {% else %}
+                          <span class="text-muted">—</span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        {% if task.due_date %}
+                          {{ task.due_date }}
+                        {% else %}
+                          <span class="text-muted">No due date</span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        {% if task.completed %}
+                          <span class="badge bg-success">Completed</span>
+                        {% else %}
+                          <span class="badge bg-warning">Pending</span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        <div class="btn-group btn-group-sm">
+                          <a href="{% url 'task_detail' task.pk %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-eye"></i>
+                          </a>
+                          <a href="{% url 'task_update' task.pk %}" class="btn btn-outline-primary">
+                            <i class="fas fa-edit"></i>
+                          </a>
+                          <a href="{% url 'task_delete' task.pk %}" class="btn btn-outline-danger">
+                            <i class="fas fa-trash"></i>
+                          </a>
+                        </div>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  {% endwith %}
+</div>
+{% endblock %} 

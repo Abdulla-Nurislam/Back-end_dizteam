@@ -2,6 +2,9 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    # Debug
+    path('debug/', views.debug_view, name='debug_view'),
+    
     # Task management
     path('', views.TaskListView.as_view(), name='task_list'),
     path('today/', views.TodayTaskListView.as_view(), name='today_tasks'),
@@ -28,7 +31,11 @@ urlpatterns = [
     
     # Tag management
     path('tags/', views.TagListView.as_view(), name='tag_list'),
+    path('tags/<int:pk>/', views.TagDetailView.as_view(), name='tag_detail'),
     path('tags/create/', views.TagCreateView.as_view(), name='tag_create'),
     path('tags/<int:pk>/update/', views.TagUpdateView.as_view(), name='tag_update'),
     path('tags/<int:pk>/delete/', views.TagDeleteView.as_view(), name='tag_delete'),
+    
+    # Calendar
+    path('save-day-note/', views.save_day_note, name='save_day_note'),
 ] 

@@ -1,0 +1,107 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Tag: {{ object.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <h2>
+        <span class="badge" style="background-color: {{ object.color }};">{{ object.name }}</span>
+      </h2>
+      {% if object.description %}
+        <p>{{ object.description }}</p>
+      {% endif %}
+    </div>
+    <div class="col-md-4 text-end">
+      <a href="{% url 'tag_update' object.pk %}" class="btn btn-outline-primary">
+        <i class="fas fa-edit"></i> Edit Tag
+      </a>
+      <a href="{% url 'tag_delete' object.pk %}" class="btn btn-outline-danger">
+        <i class="fas fa-trash"></i> Delete Tag
+      </a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Tasks with this tag</h5>
+      <a href="{% url 'task_create' %}" class="btn btn-sm btn-primary">
+        <i class="fas fa-plus"></i> New Task
+      </a>
+    </div>
+    <div class="card-body">
+      {% if tasks %}
+        <div class="list-group">
+          {% for task in tasks %}
+            <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+              <div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="task-{{ task.pk }}" 
+                         {% if task.is_completed %}checked{% endif %}>
+                  <label class="form-check-label {% if task.is_completed %}text-muted text-decoration-line-through{% endif %}" for="task-{{ task.pk }}">
+                    <a href="{% url 'task_detail' task.pk %}" class="text-decoration-none">{{ task.title }}</a>
+                  </label>
+                </div>
+                {% if task.deadline %}
+                  <small class="text-muted">Due: {{ task.deadline|date:"M j, Y" }}</small>
+                {% endif %}
+              </div>
+              <div>
+                {% if task.project %}
+                  <span class="badge bg-info">{{ task.project.name }}</span>
+                {% endif %}
+                {% if task.tags.exists %}
+                  {% for tag in task.tags.all %}
+                    {% if tag != object %}
+                      <span class="badge" style="background-color: {{ tag.color }};">{{ tag.name }}</span>
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-center py-4">
+          <p class="text-muted">No tasks with this tag yet</p>
+          <a href="{% url 'task_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i> Create Task with this Tag
+          </a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Toggle task completion
+    document.querySelectorAll('.form-check-input').forEach(function(checkbox) {
+      checkbox.addEventListener('change', function() {
+        const taskId = this.id.split('-')[1];
+        const label = this.nextElementSibling;
+        
+        fetch(`/tasks/${taskId}/toggle-completion/`, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.completed) {
+            label.classList.add('text-muted', 'text-decoration-line-through');
+          } else {
+            label.classList.remove('text-muted', 'text-decoration-line-through');
+          }
+        });
+      });
+    });
+  });
+</script>
+{% endblock %} 

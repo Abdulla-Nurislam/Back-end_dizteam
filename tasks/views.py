@@ -6,6 +6,14 @@ from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Q
 from django.utils import timezone
+from datetime import datetime, timedelta, date
+from calendar import monthrange
+import calendar
+from django.http import HttpResponse
+
+def debug_view(request):
+    """Simple view for debugging URLs"""
+    return HttpResponse("Debug view is working! Tasks app is properly connected.")
 
 from .models import Task, Project, Area, Tag
 from categories.models import Category
@@ -358,6 +366,26 @@ class TagListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         return Tag.objects.filter(owner=self.request.user)
 
+class TagDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+    model = Tag
+    template_name = 'tasks/tag_detail.html'
+    
+    def test_func(self):
+        tag = self.get_object()
+        return tag.owner == self.request.user
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        tag = self.get_object()
+        
+        # Get tasks with this tag
+        context['tasks'] = Task.objects.filter(
+            owner=self.request.user,
+            tags=tag
+        )
+        
+        return context
+
 class TagCreateView(LoginRequiredMixin, CreateView):
     model = Tag
     form_class = TagForm
@@ -395,3 +423,257 @@ class TagDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, 'Tag successfully deleted!')
         return super().delete(request, *args, **kwargs)
+
+def calendar_view(request):
+    """View for displaying the calendar with tasks and events"""
+    today = date.today()
+    
+    # Get query parameters with defaults
+    view_type = request.GET.get('view', 'month')  # Default to month view
+    
+    # Determine which date to show
+    if 'date' in request.GET:
+        try:
+            selected_date = datetime.strptime(request.GET.get('date'), '%Y-%m-%d').date()
+        except ValueError:
+            selected_date = today
+    else:
+        selected_date = today
+    
+    # Get year and month from query params or use current date
+    year = int(request.GET.get('year', selected_date.year))
+    month = int(request.GET.get('month', selected_date.month))
+    
+    # Calculate previous and next month/year
+    if month == 1:
+        prev_month = 12
+        prev_year = year - 1
+    else:
+        prev_month = month - 1
+        prev_year = year
+        
+    if month == 12:
+        next_month = 1
+        next_year = year + 1
+    else:
+        next_month = month + 1
+        next_year = year
+    
+    # Get calendar data for month view
+    cal = calendar.monthcalendar(year, month)
+    month_days = []
+    
+    # Get the month name
+    current_month_name = calendar.month_name[month]
+    
+    # For month view, prepare calendar weeks
+    if view_type == 'month':
+        # Prepare calendar grid with all days in the month
+        calendar_weeks = []
+        
+        # Get first day of the month
+        first_day = date(year, month, 1)
+        
+        # Get last day of the month
+        last_day = date(year, month, monthrange(year, month)[1])
+        
+        # Calculate days from previous month to show
+        days_before = first_day.weekday()
+        
+        # Calculate days from next month to show
+        days_after = 6 - last_day.weekday()
+        
+        # Get days from previous month
+        if days_before > 0:
+            if month == 1:
+                prev_month_days = monthrange(year - 1, 12)[1]
+                prev_month_date = 12
+                prev_year_date = year - 1
+            else:
+                prev_month_days = monthrange(year, month - 1)[1]
+                prev_month_date = month - 1
+                prev_year_date = year
+                
+            for i in range(days_before):
+                day_num = prev_month_days - days_before + i + 1
+                month_days.append({
+                    'date': date(prev_year_date, prev_month_date, day_num),
+                    'tasks': [],
+                    'events': [],
+                    'has_more': False,
+                    'more_count': 0,
+                    'month': prev_month_date
+                })
+        
+        # Get days from current month
+        for day in range(1, monthrange(year, month)[1] + 1):
+            day_date = date(year, month, day)
+            
+            # Get tasks for this day
+            day_tasks = Task.objects.filter(deadline__date=day_date)
+            
+            # Get events for this day (assuming you have an Event model)
+            try:
+                from events.models import Event
+                day_events = Event.objects.filter(date=day_date)
+            except:
+                day_events = []
+            
+            # Check if we need to show "more" indicator
+            has_more = len(day_tasks) + len(day_events) > 3
+            more_count = len(day_tasks) + len(day_events) - 3 if has_more else 0
+            
+            month_days.append({
+                'date': day_date,
+                'tasks': day_tasks[:2] if has_more else day_tasks,
+                'events': day_events[:1] if has_more and len(day_tasks) >= 2 else day_events,
+                'has_more': has_more,
+                'more_count': more_count,
+                'month': month
+            })
+        
+        # Get days from next month
+        if days_after > 0:
+            if month == 12:
+                next_month_date = 1
+                next_year_date = year + 1
+            else:
+                next_month_date = month + 1
+                next_year_date = year
+                
+            for i in range(days_after):
+                day_num = i + 1
+                month_days.append({
+                    'date': date(next_year_date, next_month_date, day_num),
+                    'tasks': [],
+                    'events': [],
+                    'has_more': False,
+                    'more_count': 0,
+                    'month': next_month_date
+                })
+        
+        # Split days into weeks
+        for i in range(0, len(month_days), 7):
+            calendar_weeks.append(month_days[i:i+7])
+    
+    # For week view
+    if view_type == 'week':
+        # Determine the start of the week (Sunday)
+        week_start = selected_date - timedelta(days=selected_date.weekday() + 1)
+        if week_start.weekday() == 6:  # If it's already Sunday
+            week_start = selected_date
+        
+        # Determine the end of the week (Saturday)
+        week_end = week_start + timedelta(days=6)
+        
+        # Create a list of days in the week
+        week_days = []
+        for i in range(7):
+            day_date = week_start + timedelta(days=i)
+            
+            # Get tasks for this day
+            day_tasks = Task.objects.filter(deadline__date=day_date)
+            
+            # Get events for this day
+            try:
+                from events.models import Event
+                day_events = Event.objects.filter(date=day_date)
+            except:
+                day_events = []
+            
+            week_days.append({
+                'date': day_date,
+                'tasks': day_tasks,
+                'events': day_events
+            })
+            
+        # Hours for the week view
+        hours = range(8, 21)  # 8 AM to 8 PM
+    
+    # For day view
+    if view_type == 'day':
+        # Get tasks for selected day
+        day_tasks = Task.objects.filter(deadline__date=selected_date)
+        
+        # Get events for selected day
+        try:
+            from events.models import Event
+            day_events = Event.objects.filter(date=selected_date)
+        except:
+            day_events = []
+        
+        # Calculate next and previous days
+        prev_day = selected_date - timedelta(days=1)
+        next_day = selected_date + timedelta(days=1)
+        
+        # Hours for the day view
+        hours = range(8, 21)  # 8 AM to 8 PM
+        
+        # Get day note (if you have a DayNote model)
+        day_note = ""  # Placeholder, replace with actual data if available
+    
+    # Get projects for task creation modal
+    try:
+        projects = Project.objects.all()
+    except:
+        projects = []
+    
+    context = {
+        'today': today,
+        'calendar_view': view_type,
+        'current_month_name': current_month_name,
+        'current_year': year,
+        'current_month': month,
+        'prev_month': prev_month,
+        'prev_year': prev_year,
+        'next_month': next_month,
+        'next_year': next_year,
+        'selected_date': selected_date,
+        'projects': projects,
+    }
+    
+    # Add view-specific context
+    if view_type == 'month':
+        context.update({
+            'calendar_weeks': calendar_weeks,
+        })
+    elif view_type == 'week':
+        context.update({
+            'week_days': week_days,
+            'week_start': week_start,
+            'week_end': week_end,
+            'hours': hours,
+        })
+    elif view_type == 'day':
+        context.update({
+            'day_tasks': day_tasks,
+            'day_events': day_events,
+            'prev_day': prev_day,
+            'next_day': next_day,
+            'hours': hours,
+            'day_note': day_note,
+        })
+    
+    return render(request, 'tasks/calendar.html', context)
+
+@login_required
+def save_day_note(request):
+    """View for saving day notes from the calendar"""
+    if request.method == 'POST':
+        note_text = request.POST.get('note', '')
+        date_str = request.POST.get('date', '')
+        
+        try:
+            note_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            
+            # Here you would typically save the note to a database
+            # For now, we'll just redirect back to the calendar with a success message
+            messages.success(request, f'Note for {note_date.strftime("%B %d, %Y")} saved successfully!')
+            
+            return redirect('calendar')
+        except ValueError:
+            messages.error(request, 'Invalid date format provided.')
+            return redirect('calendar')
+    
+    # If not a POST request, redirect to calendar view
+    return redirect('calendar')

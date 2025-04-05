@@ -1,0 +1,39 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Delete Project{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Confirm Deletion</h5>
+        </div>
+        <div class="card-body">
+          <p class="alert alert-danger">
+            Are you sure you want to delete the project "{{ project.name }}"?
+          </p>
+          
+          {% if project.tasks.exists %}
+            <div class="alert alert-warning">
+              <i class="fas fa-exclamation-triangle"></i> Warning: This project contains 
+              {{ project.tasks.count }} task{{ project.tasks.count|pluralize }}. Deleting this project will 
+              remove the project assignment from these tasks but will not delete the tasks themselves.
+            </div>
+          {% endif %}
+          
+          <form method="post">
+            {% csrf_token %}
+            <div class="d-flex justify-content-between">
+              <a href="{% url 'project_detail' project.pk %}" class="btn btn-outline-secondary">Cancel</a>
+              <button type="submit" class="btn btn-danger">Delete</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 

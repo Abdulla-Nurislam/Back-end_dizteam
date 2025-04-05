@@ -1,60 +1,46 @@
 {% extends 'base/base.html' %}
 
-{% block title %}Профиль{% endblock %}
+{% block title %}Profile{% endblock %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col-md-8">
-        <h2>Профиль</h2>
-    </div>
-</div>
+<h1 class="mb-4">Profile</h1>
 
 <div class="row">
     <div class="col-md-6">
         <div class="card mb-4">
             <div class="card-header">
-                <h5 class="card-title mb-0">Информация пользователя</h5>
+                <h5 class="mb-0">User Information</h5>
             </div>
             <div class="card-body">
-                <p><strong>Имя пользователя:</strong> {{ user.username }}</p>
-                <p><strong>Email:</strong> {{ user.email|default:"Не указан" }}</p>
-                <p><strong>Дата регистрации:</strong> {{ user.date_joined|date:"d.m.Y" }}</p>
-                <p><strong>Последний вход:</strong> {{ user.last_login|date:"d.m.Y H:i"|default:"Неизвестно" }}</p>
-                <p><strong>Био:</strong> {{ user.profile.bio|linebreaks|default:"Не указано" }}</p>
-                
-                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                    <a href="{% url 'edit_profile' %}" class="btn btn-primary">
-                        <i class="bi bi-pencil"></i> Редактировать профиль
-                    </a>
-                </div>
+                <p><strong>Username:</strong> {{ user.username }}</p>
+                <p><strong>Email:</strong> {{ user.email }}</p>
+                <p><strong>Registered on:</strong> {{ user.date_joined|date:"M d, Y" }}</p>
+                <p><strong>Last login:</strong> {{ user.last_login|date:"M d, Y H:i" }}</p>
+                <p><strong>Bio:</strong> {{ user.profile.bio|default:"" }}</p>
+            </div>
+            <div class="card-footer text-end">
+                <a href="{% url 'edit_profile' %}" class="btn btn-primary">Edit Profile</a>
             </div>
         </div>
     </div>
     
     <div class="col-md-6">
-        <div class="card mb-4">
+        <div class="card">
             <div class="card-header">
-                <h5 class="card-title mb-0">Статистика задач</h5>
+                <h5 class="mb-0">Task Statistics</h5>
             </div>
             <div class="card-body">
-                <p><strong>Всего задач:</strong> {{ user.tasks.count }}</p>
-                <p><strong>Выполненных задач:</strong> {{ completed_tasks_count }}</p>
-                <p><strong>Активных задач:</strong> {{ active_tasks_count }}</p>
+                <p><strong>Total tasks:</strong> {{ completed_tasks_count|add:active_tasks_count }}</p>
+                <p><strong>Completed tasks:</strong> {{ completed_tasks_count }}</p>
+                <p><strong>Active tasks:</strong> {{ active_tasks_count }}</p>
                 
-                <div class="progress mb-3">
-                    <div class="progress-bar bg-success" role="progressbar" 
-                         style="width: {% if user.tasks.count > 0 %}{{ completed_tasks_count|floatformat:0 }}{% else %}0{% endif %}%;"
-                         aria-valuenow="{% if user.tasks.count > 0 %}{{ completed_tasks_count|floatformat:0 }}{% else %}0{% endif %}" 
-                         aria-valuemin="0" aria-valuemax="100">
-                        {% if user.tasks.count > 0 %}{{ completed_tasks_count|floatformat:0 }}%{% else %}0%{% endif %}
-                    </div>
+                <div class="progress mt-3">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ completion_percentage }}%" aria-valuenow="{{ completion_percentage }}" aria-valuemin="0" aria-valuemax="100">{{ completion_percentage|floatformat:0 }}%</div>
                 </div>
-                
-                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                    <a href="{% url 'task_list' %}" class="btn btn-secondary">
-                        <i class="bi bi-list-task"></i> Мои задачи
-                    </a>
-                </div>
+                <p class="text-center mt-2"><small>Completion rate</small></p>
+            </div>
+            <div class="card-footer text-end">
+                <a href="{% url 'task_list' %}" class="btn btn-outline-primary">My Tasks</a>
             </div>
         </div>
     </div>

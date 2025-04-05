@@ -1,0 +1,37 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Delete Tag{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Delete Tag</h5>
+        </div>
+        <div class="card-body">
+          <p>Are you sure you want to delete the tag <span class="badge rounded-pill" style="background-color: {{ object.color }}">{{ object.name }}</span>?</p>
+          
+          {% if object.task_set.count > 0 %}
+          <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            This tag is currently used in {{ object.task_set.count }} task{{ object.task_set.count|pluralize }}. 
+            Deleting this tag will remove it from these tasks, but the tasks will not be deleted.
+          </div>
+          {% endif %}
+          
+          <form method="post">
+            {% csrf_token %}
+            <div class="d-flex justify-content-between">
+              <a href="{% url 'tag_list' %}" class="btn btn-outline-secondary">Cancel</a>
+              <button type="submit" class="btn btn-danger">Delete</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 
