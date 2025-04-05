@@ -1,0 +1,61 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{{ task.title }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="{% if task.is_completed %}task-completed{% endif %}">{{ task.title }}</h2>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{% url 'task_list' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> К списку задач
+        </a>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <div>
+            {% if task.category %}
+                <span class="badge bg-info">{{ task.category.name }}</span>
+            {% endif %}
+            {% if task.is_completed %}
+                <span class="badge bg-success">Выполнено</span>
+            {% else %}
+                <span class="badge bg-warning">В процессе</span>
+            {% endif %}
+        </div>
+        <div>
+            <small>Создано: {{ task.created_date|date:"d.m.Y H:i" }}</small>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if task.description %}
+            <p class="card-text">{{ task.description|linebreaks }}</p>
+        {% else %}
+            <p class="card-text text-muted">Нет описания</p>
+        {% endif %}
+    </div>
+    <div class="card-footer d-flex justify-content-between align-items-center">
+        <div>
+            <span class="text-muted">Владелец: {{ task.owner.username }}</span>
+        </div>
+        <div>
+            <a href="{% url 'task_toggle' task.id %}" class="btn btn-sm btn-outline-secondary">
+                {% if task.is_completed %}
+                    <i class="bi bi-x-circle"></i> Отменить выполнение
+                {% else %}
+                    <i class="bi bi-check-circle"></i> Отметить как выполненное
+                {% endif %}
+            </a>
+            <a href="{% url 'task_update' task.id %}" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-pencil"></i> Изменить
+            </a>
+            <a href="{% url 'task_delete' task.id %}" class="btn btn-sm btn-outline-danger">
+                <i class="bi bi-trash"></i> Удалить
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

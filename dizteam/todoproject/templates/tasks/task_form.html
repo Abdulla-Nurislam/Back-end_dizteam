@@ -1,0 +1,69 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{% if form.instance.id %}Редактирование задачи{% else %}Создание задачи{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2>{% if form.instance.id %}Редактирование задачи{% else %}Создание задачи{% endif %}</h2>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{% url 'task_list' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> К списку задач
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post" novalidate>
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="id_title" class="form-label">Название</label>
+                {{ form.title.errors }}
+                <input type="text" name="title" id="id_title" class="form-control {% if form.title.errors %}is-invalid{% endif %}" value="{{ form.title.value|default:'' }}" required>
+                {% if form.title.errors %}
+                    <div class="invalid-feedback">{{ form.title.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-3">
+                <label for="id_description" class="form-label">Описание</label>
+                {{ form.description.errors }}
+                <textarea name="description" id="id_description" class="form-control {% if form.description.errors %}is-invalid{% endif %}" rows="5">{{ form.description.value|default:'' }}</textarea>
+                {% if form.description.errors %}
+                    <div class="invalid-feedback">{{ form.description.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-3">
+                <label for="id_category" class="form-label">Категория</label>
+                {{ form.category.errors }}
+                <select name="category" id="id_category" class="form-select {% if form.category.errors %}is-invalid{% endif %}">
+                    <option value="" {% if not form.category.value %}selected{% endif %}>---------</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}" {% if form.category.value|stringformat:"s" == category.id|stringformat:"s" %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                {% if form.category.errors %}
+                    <div class="invalid-feedback">{{ form.category.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-3 form-check">
+                <input type="checkbox" name="is_completed" id="id_is_completed" class="form-check-input" {% if form.is_completed.value %}checked{% endif %}>
+                <label for="id_is_completed" class="form-check-label">Задача выполнена</label>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button type="submit" class="btn btn-primary">
+                    {% if form.instance.id %}Сохранить{% else %}Создать{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

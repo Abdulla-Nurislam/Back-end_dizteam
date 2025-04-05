@@ -1,0 +1,39 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{% if form.instance.id %}Редактирование категории{% else %}Создание категории{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2>{% if form.instance.id %}Редактирование категории{% else %}Создание категории{% endif %}</h2>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{% url 'category_list' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> К списку категорий
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post" novalidate>
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="id_name" class="form-label">Название</label>
+                {{ form.name.errors }}
+                <input type="text" name="name" id="id_name" class="form-control {% if form.name.errors %}is-invalid{% endif %}" value="{{ form.name.value|default:'' }}" required>
+                {% if form.name.errors %}
+                    <div class="invalid-feedback">{{ form.name.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button type="submit" class="btn btn-primary">
+                    {% if form.instance.id %}Сохранить{% else %}Создать{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 
