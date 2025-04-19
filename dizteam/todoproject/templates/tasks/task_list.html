@@ -85,4 +85,41 @@
         No tasks found. <a href="{% url 'task_create' %}" class="alert-link">Create a new task</a>.
     </div>
 {% endif %}
+
+<!-- Пагинация -->
+{% if tasks.has_other_pages %}
+<nav aria-label="Task pagination">
+    <ul class="pagination justify-content-center">
+        {% if tasks.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ tasks.previous_page_number }}{% if sort %}&sort={{ sort }}{% endif %}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">&laquo;</span>
+            </li>
+        {% endif %}
+        {% for num in tasks.paginator.page_range %}
+            {% if tasks.number == num %}
+                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% else %}
+                <li class="page-item"><a class="page-link" href="?page={{ num }}{% if sort %}&sort={{ sort }}{% endif %}">{{ num }}</a></li>
+            {% endif %}
+        {% endfor %}
+        {% if tasks.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ tasks.next_page_number }}{% if sort %}&sort={{ sort }}{% endif %}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">&raquo;</span>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
 {% endblock %} 

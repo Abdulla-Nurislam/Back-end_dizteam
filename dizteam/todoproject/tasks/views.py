@@ -24,6 +24,7 @@ class TaskListView(LoginRequiredMixin, ListView):
     model = Task
     template_name = 'tasks/task_list.html'
     context_object_name = 'tasks'
+    paginate_by = 10  # Пагинация по 10 задач на страницу
     
     def get_queryset(self):
         queryset = Task.objects.filter(owner=self.request.user)
@@ -78,13 +79,14 @@ class TaskListView(LoginRequiredMixin, ListView):
         context['selected_tag'] = self.request.GET.get('tag', '')
         context['status'] = self.request.GET.get('status', '')
         context['search_query'] = self.request.GET.get('search', '')
-        
+        context['sort'] = self.request.GET.get('sort', '')
         return context
 
 class TodayTaskListView(LoginRequiredMixin, ListView):
     model = Task
     template_name = 'tasks/today_task_list.html'
     context_object_name = 'tasks'
+    paginate_by = 10
     
     def get_queryset(self):
         today = timezone.now().date()
@@ -218,6 +220,7 @@ class ProjectListView(LoginRequiredMixin, ListView):
     model = Project
     template_name = 'tasks/project_list.html'
     context_object_name = 'projects'
+    paginate_by = 10
     
     def get_queryset(self):
         return Project.objects.filter(owner=self.request.user)
@@ -287,6 +290,7 @@ class AreaListView(LoginRequiredMixin, ListView):
     model = Area
     template_name = 'tasks/area_list.html'
     context_object_name = 'areas'
+    paginate_by = 10
     
     def get_queryset(self):
         return Area.objects.filter(owner=self.request.user)
@@ -362,6 +366,7 @@ class TagListView(LoginRequiredMixin, ListView):
     model = Tag
     template_name = 'tasks/tag_list.html'
     context_object_name = 'tags'
+    paginate_by = 10
     
     def get_queryset(self):
         return Tag.objects.filter(owner=self.request.user)
