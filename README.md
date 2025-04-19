@@ -144,6 +144,89 @@ For production, consider setting up Celery to automate notification delivery:
 - FullCalendar (for calendar views)
 - Select2 (for tag selection)
 
+## Deployment on PythonAnywhere
+
+Follow these steps to deploy the application on PythonAnywhere:
+
+1. **Create a PythonAnywhere account**
+   - Sign up at [www.pythonanywhere.com](https://www.pythonanywhere.com/)
+   - Choose a free account for testing or a paid account for production
+
+2. **Upload your code**
+   - From the PythonAnywhere dashboard, open a Bash console
+   - Clone your repository using Git:
+     ```
+     git clone https://github.com/yourusername/todoproject.git
+     ```
+   - Alternatively, upload your project as a ZIP file
+
+3. **Set up a virtual environment**
+   ```
+   cd todoproject
+   python -m venv venv
+   source venv/bin/activate
+   pip install django Pillow
+   ```
+
+4. **Configure the web app**
+   - Go to the Web tab in the PythonAnywhere dashboard
+   - Click "Add a new web app"
+   - Choose "Manual configuration" and select Python version (3.8+)
+   - Set the path to your project's WSGI file
+
+5. **Update the WSGI file**
+   - Edit the WSGI file (path will be shown in the Web tab)
+   - Modify it to point to your Django project:
+     ```python
+     import os
+     import sys
+
+     # Add your project directory to the sys.path
+     path = '/home/yourusername/todoproject'
+     if path not in sys.path:
+         sys.path.insert(0, path)
+
+     # Set environment variables
+     os.environ['DJANGO_SETTINGS_MODULE'] = 'todoproject.settings'
+
+     # Serve static files
+     from django.core.wsgi import get_wsgi_application
+     application = get_wsgi_application()
+     ```
+
+6. **Configure static and media files**
+   - In the Web tab, add the following URL/Directory mappings:
+     - Static files URL: `/static/` → Directory: `/home/yourusername/todoproject/staticfiles`
+     - Media files URL: `/media/` → Directory: `/home/yourusername/todoproject/media`
+
+7. **Update settings.py for production**
+   - Edit settings.py to be production-ready:
+     ```python
+     DEBUG = False
+     ALLOWED_HOSTS = ['yourusername.pythonanywhere.com']
+     
+     # Configure email settings for production
+     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+     # Fill in your email credentials
+     ```
+
+8. **Collect static files**
+   ```
+   python manage.py collectstatic
+   ```
+
+9. **Apply migrations and create superuser**
+   ```
+   python manage.py migrate
+   python manage.py createsuperuser
+   ```
+
+10. **Reload the web app**
+    - Click the Reload button in the Web tab
+
+11. **Visit your site**
+    - Your site will be available at yourusername.pythonanywhere.com
+
 ## Future Enhancements
 
 - Celery for background tasks

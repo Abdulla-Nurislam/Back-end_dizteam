@@ -1,53 +1,11 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/26.2.2 Chrome/134.0.6998.178 Electron/35.1.2 Safari/537.36" version="26.2.2">
   <diagram name="ER Diagram" id="ER-Diagram">
-    <mxGraphModel dx="702" dy="503" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" background="light-dark(#FFFFFF,#000000)" math="0" shadow="0">
+    <mxGraphModel dx="558" dy="399" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="2" value="User" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#dae8fc;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;strokeColor=#6c8ebf;fontColor=#000000;" parent="1" vertex="1">
-          +-------------+      +------------+      +------------+
-|    User     |      |  Category  |      |    Tag     |
-+-------------+      +------------+      +------------+
-| id          |      | id         |      | id         |
-| username    |      | name       |      | name       |
-| password    |      +------------+      | color      |
-| email       |            ^             | owner_id   |
-+-------------+            |             +------------+
-      ^                    |                   ^
-      |                    |                   |
-      |                    |                   |
-+-------------+      +------------+      +------------+
-|   Profile   |      |    Task    |<---->|   Event    |
-+-------------+      +------------+      +------------+
-| id          |      | id         |      | id         |
-| user_id     |<---->| title      |      | title      |
-| bio         |      | description|      | description|
-+-------------+      | deadline   |      | start_time |
-                     | today_flag |      | end_time   |
-                     | owner_id   |      | repeat     |
-      +------------->| category_id|      | owner_id   |
-      |              | project_id |<--+  +------------+
-      |              | area_id    |<-+|         ^
-      |              | event_id   |-+||         |
-      |              +------------+ |||         |
-      |                             |||         |
-+------------+      +------------+  |||  +------------+
-|   Project  |      |    Area    |  |||  | shared_with|
-+------------+      +------------+  |||  +------------+
-| id         |<-----+ id         |  |||  | event_id   |
-| name       |      | name       |--+||  | user_id    |
-| description|      | description|   ||  +------------+
-| owner_id   |      | owner_id   |   ||
-+------------+      +------------+   ||
-                                     ||
-              +------------+         ||
-              | task_tags  |<--------+|
-              +------------+          |
-              | task_id    |          |
-              | tag_id     |----------+
-              +------------+
-
-
+          <mxGeometry x="120" y="120" width="160" height="130" as="geometry" />
         </mxCell>
         <mxCell id="3" value="id (PK)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontStyle=1" parent="2" vertex="1">
           <mxGeometry y="26" width="160" height="26" as="geometry" />

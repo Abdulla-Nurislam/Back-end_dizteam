@@ -12,7 +12,10 @@
                 <h5 class="mb-0">User Information</h5>
             </div>
             <div class="card-body">
-                <p><strong>Username:</strong> {{ user.username }}</p>
+                <div class="text-center mb-4">
+                    <img src="{{ user.profile.profile_image.url }}" alt="{{ user.username }}" class="rounded-circle img-fluid mb-3" style="max-width: 150px; max-height: 150px;">
+                    <h4>{{ user.username }}</h4>
+                </div>
                 <p><strong>Email:</strong> {{ user.email }}</p>
                 <p><strong>Registered on:</strong> {{ user.date_joined|date:"M d, Y" }}</p>
                 <p><strong>Last login:</strong> {{ user.last_login|date:"M d, Y H:i" }}</p>
