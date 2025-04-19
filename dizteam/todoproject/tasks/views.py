@@ -424,6 +424,9 @@ class TagDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         messages.success(self.request, 'Tag successfully deleted!')
         return super().delete(request, *args, **kwargs)
 
+from django.contrib.auth.decorators import login_required
+
+@login_required
 def calendar_view(request):
     """View for displaying the calendar with tasks and events"""
     today = date.today()
