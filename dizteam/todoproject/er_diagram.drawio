@@ -5,32 +5,48 @@
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="2" value="User" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#dae8fc;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;strokeColor=#6c8ebf;fontColor=#000000;" parent="1" vertex="1">
-          <!--
-ER-диаграмма для Django проекта Task Manager (актуальная структура)
+          +-------------+      +------------+      +------------+
+|    User     |      |  Category  |      |    Tag     |
++-------------+      +------------+      +------------+
+| id          |      | id         |      | id         |
+| username    |      | name       |      | name       |
+| password    |      +------------+      | color      |
+| email       |            ^             | owner_id   |
++-------------+            |             +------------+
+      ^                    |                   ^
+      |                    |                   |
+      |                    |                   |
++-------------+      +------------+      +------------+
+|   Profile   |      |    Task    |<---->|   Event    |
++-------------+      +------------+      +------------+
+| id          |      | id         |      | id         |
+| user_id     |<---->| title      |      | title      |
+| bio         |      | description|      | description|
++-------------+      | deadline   |      | start_time |
+                     | today_flag |      | end_time   |
+                     | owner_id   |      | repeat     |
+      +------------->| category_id|      | owner_id   |
+      |              | project_id |<--+  +------------+
+      |              | area_id    |<-+|         ^
+      |              | event_id   |-+||         |
+      |              +------------+ |||         |
+      |                             |||         |
++------------+      +------------+  |||  +------------+
+|   Project  |      |    Area    |  |||  | shared_with|
++------------+      +------------+  |||  +------------+
+| id         |<-----+ id         |  |||  | event_id   |
+| name       |      | name       |--+||  | user_id    |
+| description|      | description|   ||  +------------+
+| owner_id   |      | owner_id   |   ||
++------------+      +------------+   ||
+                                     ||
+              +------------+         ||
+              | task_tags  |<--------+|
+              +------------+          |
+              | task_id    |          |
+              | tag_id     |----------+
+              +------------+
 
-User [id, username, password, email, ...]
-|
-|-- Project [id, name, description, created_date, owner]
-|-- Area [id, name, description, owner]
-|-- Tag [id, name, color, owner]
-|-- Task [id, title, description, created_date, is_completed, owner, category, project, area, deadline, today_flag, event]
-|-- Event [id, title, description, start_time, end_time, location, all_day, repeat, repeat_until, owner, shared_with, uuid, notify_before, created_date, updated_date]
-|-- Category [id, name]
-
-Task <-> Tag (ManyToMany)
-Event <-> User (shared_with: ManyToMany)
-Task -> Project (nullable FK)
-Task -> Area (nullable FK)
-Task -> Category (nullable FK)
-Task -> Event (nullable FK)
-Project -> User (FK)
-Area -> User (FK)
-Tag -> User (FK)
-Task -> User (FK)
-Event -> User (FK)
-
-Рекомендуется использовать этот текст для ручного переноса в draw.io или для автоматической генерации через mermaid или другой инструмент.
--->
 
         </mxCell>
         <mxCell id="3" value="id (PK)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontStyle=1" parent="2" vertex="1">
