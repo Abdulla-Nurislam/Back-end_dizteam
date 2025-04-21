@@ -141,21 +141,27 @@ LOGIN_REDIRECT_URL = 'task_list'
 LOGOUT_REDIRECT_URL = 'login'
 
 # Email configuration
-# For development and testing password reset
-# Option 1: Use console backend to see emails in the console
+# Опция 1: Использование консоли для разработки (письма отображаются в консоли)
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# Option 2: Use SMTP for actual email sending (Gmail)
-# Настройки для отправки реальной почты через Gmail
+# Опция 2: Настройки для отправки через Gmail
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'abdullanurislam97@gmail.com'
+# EMAIL_HOST_PASSWORD = 'xrju yont jckv xteh'  # пароль приложения из Google
+# DEFAULT_FROM_EMAIL = 'abdullanurislam97@gmail.com'
+
+# Опция 3: Настройки для отправки через SMTP сервер PythonAnywhere
+# Эта опция может работать лучше всего на PythonAnywhere
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST = 'smtp.eu.pythonanywhere.com'  # или 'smtp.pythonanywhere.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'abdullanurislam97@gmail.com'
-# Внимание: Вам нужно создать специальный пароль приложения в настройках Google аккаунта
-# Заполните следующую строку реальным паролем приложения
-EMAIL_HOST_PASSWORD = 'ваш_пароль_приложения'  # Используйте пароль приложения, не обычный пароль
-DEFAULT_FROM_EMAIL = 'abdullanurislam97@gmail.com'
+EMAIL_HOST_USER = 'NasX'  # ваше имя пользователя на PythonAnywhere
+EMAIL_HOST_PASSWORD = 'xinhuc-6nyttE-kytjyt'  # пароль от аккаунта PythonAnywhere
+DEFAULT_FROM_EMAIL = 'noreply@nasx.pythonanywhere.com'
 
 # Celery Configuration (for future implementation)
 # Uncomment to enable Celery for handling background tasks like notifications
