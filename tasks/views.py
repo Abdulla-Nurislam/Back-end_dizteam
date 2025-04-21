@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.db.models import Q
+from django.db.models import Q, F
 from django.utils import timezone
 from datetime import datetime, timedelta, date
 from calendar import monthrange
@@ -63,6 +63,28 @@ class TaskListView(LoginRequiredMixin, ListView):
                 Q(title__icontains=search_query) | 
                 Q(description__icontains=search_query)
             )
+        
+        # Sorting
+        sort = self.request.GET.get('sort')
+        if sort:
+            if sort == 'title':
+                queryset = queryset.order_by('title')
+            elif sort == '-title':
+                queryset = queryset.order_by('-title')
+            elif sort == 'created':
+                queryset = queryset.order_by('created_date')
+            elif sort == '-created':
+                queryset = queryset.order_by('-created_date')
+            elif sort == 'deadline':
+                # Сначала задачи с дедлайном, сортировка по дедлайну
+                queryset = queryset.order_by(F('deadline').asc(nulls_last=True))
+            elif sort == '-deadline':
+                # Сначала задачи с дедлайном, сортировка по дедлайну в обратном порядке
+                queryset = queryset.order_by(F('deadline').desc(nulls_last=True))
+            elif sort == 'priority':
+                queryset = queryset.order_by('-priority')
+            elif sort == '-priority':
+                queryset = queryset.order_by('priority')
             
         return queryset
     
@@ -223,7 +245,39 @@ class ProjectListView(LoginRequiredMixin, ListView):
     paginate_by = 10
     
     def get_queryset(self):
-        return Project.objects.filter(owner=self.request.user)
+        queryset = Project.objects.filter(owner=self.request.user)
+        
+        # Поиск
+        search_query = self.request.GET.get('search')
+        if search_query:
+            queryset = queryset.filter(
+                Q(name__icontains=search_query) | 
+                Q(description__icontains=search_query)
+            )
+        
+        # Сортировка
+        sort = self.request.GET.get('sort')
+        if sort:
+            if sort == 'name':
+                queryset = queryset.order_by('name')
+            elif sort == '-name':
+                queryset = queryset.order_by('-name')
+            elif sort == 'created':
+                queryset = queryset.order_by('created_date')
+            elif sort == '-created':
+                queryset = queryset.order_by('-created_date')
+            elif sort == 'deadline':
+                queryset = queryset.order_by(F('deadline').asc(nulls_last=True))
+            elif sort == '-deadline':
+                queryset = queryset.order_by(F('deadline').desc(nulls_last=True))
+        
+        return queryset
+        
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_query'] = self.request.GET.get('search', '')
+        context['sort'] = self.request.GET.get('sort', '')
+        return context
 
 class ProjectDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Project
@@ -293,7 +347,35 @@ class AreaListView(LoginRequiredMixin, ListView):
     paginate_by = 10
     
     def get_queryset(self):
-        return Area.objects.filter(owner=self.request.user)
+        queryset = Area.objects.filter(owner=self.request.user)
+        
+        # Поиск
+        search_query = self.request.GET.get('search')
+        if search_query:
+            queryset = queryset.filter(
+                Q(name__icontains=search_query) | 
+                Q(description__icontains=search_query)
+            )
+        
+        # Сортировка
+        sort = self.request.GET.get('sort')
+        if sort:
+            if sort == 'name':
+                queryset = queryset.order_by('name')
+            elif sort == '-name':
+                queryset = queryset.order_by('-name')
+            elif sort == 'created':
+                queryset = queryset.order_by('created_date')
+            elif sort == '-created':
+                queryset = queryset.order_by('-created_date')
+        
+        return queryset
+        
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_query'] = self.request.GET.get('search', '')
+        context['sort'] = self.request.GET.get('sort', '')
+        return context
 
 class AreaDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Area
@@ -369,7 +451,32 @@ class TagListView(LoginRequiredMixin, ListView):
     paginate_by = 10
     
     def get_queryset(self):
-        return Tag.objects.filter(owner=self.request.user)
+        queryset = Tag.objects.filter(owner=self.request.user)
+        
+        # Поиск
+        search_query = self.request.GET.get('search')
+        if search_query:
+            queryset = queryset.filter(name__icontains=search_query)
+        
+        # Сортировка
+        sort = self.request.GET.get('sort')
+        if sort:
+            if sort == 'name':
+                queryset = queryset.order_by('name')
+            elif sort == '-name':
+                queryset = queryset.order_by('-name')
+            elif sort == 'created':
+                queryset = queryset.order_by('created_date')
+            elif sort == '-created':
+                queryset = queryset.order_by('-created_date')
+        
+        return queryset
+        
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_query'] = self.request.GET.get('search', '')
+        context['sort'] = self.request.GET.get('sort', '')
+        return context
 
 class TagDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Tag

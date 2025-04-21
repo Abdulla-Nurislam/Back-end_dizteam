@@ -7,6 +7,26 @@
     <div class="col-md-8">
         <h2>My Tasks</h2>
     </div>
+    <div class="col-md-4 text-end">
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-sort-alpha-down"></i> Sort by
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="sortDropdown">
+                <li><a class="dropdown-item {% if sort == 'title' %}active{% endif %}" href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}{% if status %}status={{ status }}&{% endif %}sort=title">Title (A-Z)</a></li>
+                <li><a class="dropdown-item {% if sort == '-title' %}active{% endif %}" href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}{% if status %}status={{ status }}&{% endif %}sort=-title">Title (Z-A)</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item {% if sort == 'created' %}active{% endif %}" href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}{% if status %}status={{ status }}&{% endif %}sort=created">Created (Oldest first)</a></li>
+                <li><a class="dropdown-item {% if sort == '-created' %}active{% endif %}" href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}{% if status %}status={{ status }}&{% endif %}sort=-created">Created (Newest first)</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item {% if sort == 'deadline' %}active{% endif %}" href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}{% if status %}status={{ status }}&{% endif %}sort=deadline">Deadline (Earliest first)</a></li>
+                <li><a class="dropdown-item {% if sort == '-deadline' %}active{% endif %}" href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}{% if status %}status={{ status }}&{% endif %}sort=-deadline">Deadline (Latest first)</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item {% if sort == 'priority' %}active{% endif %}" href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}{% if status %}status={{ status }}&{% endif %}sort=priority">Priority (High to Low)</a></li>
+                <li><a class="dropdown-item {% if sort == '-priority' %}active{% endif %}" href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}{% if status %}status={{ status }}&{% endif %}sort=-priority">Priority (Low to High)</a></li>
+            </ul>
+        </div>
+    </div>
 </div>
 
 <div class="row mb-3">

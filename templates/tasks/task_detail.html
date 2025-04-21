@@ -42,7 +42,7 @@
             <span class="text-muted">Владелец: {{ task.owner.username }}</span>
         </div>
         <div>
-            <a href="{% url 'task_toggle' task.id %}" class="btn btn-sm btn-outline-secondary">
+            <a href="{% url 'task_toggle_completion' task.id %}" class="btn btn-sm btn-outline-secondary">
                 {% if task.is_completed %}
                     <i class="bi bi-x-circle"></i> Отменить выполнение
                 {% else %}

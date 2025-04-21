@@ -1,10 +1,4 @@
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'  # или smtp.yandex.ru, smtp.mail.ru и т.д.
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'abdullanurislam97@gmail.com'
-EMAIL_HOST_PASSWORD = 'your_app_password'
-DEFAULT_FROM_EMAIL = 'abdullanurislam97@gmail.com'
+# Email configuration moved to the bottom of the file
 
 """
 Django settings for todoproject project.
@@ -147,17 +141,19 @@ LOGIN_REDIRECT_URL = 'task_list'
 LOGOUT_REDIRECT_URL = 'login'
 
 # Email configuration
-# For development, use console backend
+# For development and testing password reset
+# Option 1: Use console backend to see emails in the console
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# For production, uncomment and configure these settings
+# Option 2: Use SMTP for actual email sending (Gmail)
+# Uncomment these lines and set a valid app password to send real emails
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.your-email-provider.com'
+# EMAIL_HOST = 'smtp.gmail.com'
 # EMAIL_PORT = 587
 # EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'your-email@example.com'
-# EMAIL_HOST_PASSWORD = 'your-password'
-# DEFAULT_FROM_EMAIL = 'Todo App <noreply@yourdomain.com>'
+# EMAIL_HOST_USER = 'abdullanurislam97@gmail.com'
+# EMAIL_HOST_PASSWORD = 'your_app_password'  # Use an app password, not your regular password
+# DEFAULT_FROM_EMAIL = 'abdullanurislam97@gmail.com'
 
 # Celery Configuration (for future implementation)
 # Uncomment to enable Celery for handling background tasks like notifications

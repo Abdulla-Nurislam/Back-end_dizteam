@@ -17,10 +17,11 @@ class EventListView(LoginRequiredMixin, ListView):
     model = Event
     template_name = 'events/event_list.html'
     context_object_name = 'events'
+    paginate_by = 10
     
     def get_queryset(self):
         # Get events owned by user and shared with user
-        user_events = Event.objects.filter(
+        queryset = Event.objects.filter(
             Q(owner=self.request.user) | Q(shared_with=self.request.user)
         ).distinct()
         
@@ -29,17 +30,47 @@ class EventListView(LoginRequiredMixin, ListView):
         if date_filter:
             try:
                 filter_date = datetime.strptime(date_filter, '%Y-%m-%d').date()
-                user_events = user_events.filter(
+                queryset = queryset.filter(
                     Q(start_time__date=filter_date) | Q(end_time__date=filter_date)
                 )
             except ValueError:
                 pass
         
-        return user_events
+        # Search filter
+        search_query = self.request.GET.get('search')
+        if search_query:
+            queryset = queryset.filter(
+                Q(title__icontains=search_query) | 
+                Q(description__icontains=search_query) |
+                Q(location__icontains=search_query)
+            )
+        
+        # Sorting
+        sort = self.request.GET.get('sort')
+        if sort:
+            if sort == 'title':
+                queryset = queryset.order_by('title')
+            elif sort == '-title':
+                queryset = queryset.order_by('-title')
+            elif sort == 'start':
+                queryset = queryset.order_by('start_time')
+            elif sort == '-start':
+                queryset = queryset.order_by('-start_time')
+            elif sort == 'location':
+                queryset = queryset.order_by('location')
+            elif sort == '-location':
+                queryset = queryset.order_by('-location')
+        else:
+            # По умолчанию сортируем по времени начала
+            queryset = queryset.order_by('start_time')
+        
+        return queryset
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['date_filter'] = self.request.GET.get('date', '')
+        context['search_query'] = self.request.GET.get('search', '')
+        context['sort'] = self.request.GET.get('sort', '')
         return context
 
 class EventDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
