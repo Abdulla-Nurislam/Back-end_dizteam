@@ -140,20 +140,17 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'task_list'
 LOGOUT_REDIRECT_URL = 'login'
 
-# Email configuration
-# Локально использовать консольный бэкенд для разработки и тестирования
-# Когда работаете локально - раскомментируйте эту строку и закомментируйте настройки PythonAnywhere SMTP
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-# Настройки для отправки через SMTP сервер PythonAnywhere (для продакшена)
-# Эти настройки нужны для работы на PythonAnywhere
+# Настройки для отправки через SMTP сервер PythonAnywhere
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.eu.pythonanywhere.com'  # или 'smtp.pythonanywhere.com' в зависимости от региона
+EMAIL_HOST = 'smtp.eu.pythonanywhere.com'  # Используйте 'smtp.pythonanywhere.com' если не в ЕС
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'NasX'  # ваше имя пользователя на PythonAnywhere
-EMAIL_HOST_PASSWORD = 'xinhuc-6nyttE-kytjyt'  # пароль от аккаунта PythonAnywhere
-DEFAULT_FROM_EMAIL = 'noreply@nasx.pythonanywhere.com'
+EMAIL_HOST_USER = 'NasX'  # Ваше имя пользователя на PythonAnywhere
+EMAIL_HOST_PASSWORD = 'xinhuc-6nyttE-kytjyt'  # Пароль от аккаунта PythonAnywhere
+# Используйте полный адрес вашего аккаунта на PythonAnywhere
+DEFAULT_FROM_EMAIL = 'NasX@pythonanywhere.com'
+# Добавляем SERVER_EMAIL для административных сообщений
+SERVER_EMAIL = 'NasX@pythonanywhere.com'
 
 # Опция Gmail (если вы захотите использовать Gmail вместо PythonAnywhere)
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
