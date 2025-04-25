@@ -141,10 +141,21 @@ LOGIN_REDIRECT_URL = 'task_list'
 LOGOUT_REDIRECT_URL = 'login'
 
 # Email configuration
-# Опция 1: Использование консоли для разработки (письма отображаются в консоли)
+# Локально использовать консольный бэкенд для разработки и тестирования
+# Когда работаете локально - раскомментируйте эту строку и закомментируйте настройки PythonAnywhere SMTP
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# Опция 2: Настройки для отправки через Gmail
+# Настройки для отправки через SMTP сервер PythonAnywhere (для продакшена)
+# Эти настройки нужны для работы на PythonAnywhere
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.eu.pythonanywhere.com'  # или 'smtp.pythonanywhere.com' в зависимости от региона
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'NasX'  # ваше имя пользователя на PythonAnywhere
+EMAIL_HOST_PASSWORD = 'xinhuc-6nyttE-kytjyt'  # пароль от аккаунта PythonAnywhere
+DEFAULT_FROM_EMAIL = 'noreply@nasx.pythonanywhere.com'
+
+# Опция Gmail (если вы захотите использовать Gmail вместо PythonAnywhere)
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # EMAIL_HOST = 'smtp.gmail.com'
 # EMAIL_PORT = 587
@@ -152,16 +163,6 @@ LOGOUT_REDIRECT_URL = 'login'
 # EMAIL_HOST_USER = 'abdullanurislam97@gmail.com'
 # EMAIL_HOST_PASSWORD = 'xrju yont jckv xteh'  # пароль приложения из Google
 # DEFAULT_FROM_EMAIL = 'abdullanurislam97@gmail.com'
-
-# Опция 3: Настройки для отправки через SMTP сервер PythonAnywhere
-# Эта опция может работать лучше всего на PythonAnywhere
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.eu.pythonanywhere.com'  # или 'smtp.pythonanywhere.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'NasX'  # ваше имя пользователя на PythonAnywhere
-EMAIL_HOST_PASSWORD = 'xinhuc-6nyttE-kytjyt'  # пароль от аккаунта PythonAnywhere
-DEFAULT_FROM_EMAIL = 'noreply@nasx.pythonanywhere.com'
 
 # Celery Configuration (for future implementation)
 # Uncomment to enable Celery for handling background tasks like notifications
