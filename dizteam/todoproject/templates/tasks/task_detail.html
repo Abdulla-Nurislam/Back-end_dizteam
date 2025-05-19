@@ -45,7 +45,7 @@
             <a href="{% url 'task_update' task.id %}" class="btn btn-sm btn-outline-primary">
                 <i class="bi bi-pencil"></i> Изменить
             </a>
-            <a href="{% url 'task_toggle' task.id %}" class="btn btn-sm btn-outline-success">
+            <a href="{% url 'task_toggle_completion' task.id %}" class="btn btn-sm btn-outline-success">
                 <i class="bi bi-check-circle"></i> Отметить как выполненное
             </a>
             <a href="{% url 'task_delete' task.id %}" class="btn btn-sm btn-outline-danger">
