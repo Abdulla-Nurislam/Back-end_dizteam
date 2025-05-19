@@ -41,16 +41,12 @@
         <div>
             <span class="text-muted">Владелец: {{ task.owner.username }}</span>
         </div>
-        <div>
-            <a href="{% url 'task_toggle' task.id %}" class="btn btn-sm btn-outline-secondary">
-                {% if task.is_completed %}
-                    <i class="bi bi-x-circle"></i> Отменить выполнение
-                {% else %}
-                    <i class="bi bi-check-circle"></i> Отметить как выполненное
-                {% endif %}
-            </a>
+        <div class="btn-group">
             <a href="{% url 'task_update' task.id %}" class="btn btn-sm btn-outline-primary">
                 <i class="bi bi-pencil"></i> Изменить
+            </a>
+            <a href="{% url 'task_toggle' task.id %}" class="btn btn-sm btn-outline-success">
+                <i class="bi bi-check-circle"></i> Отметить как выполненное
             </a>
             <a href="{% url 'task_delete' task.id %}" class="btn btn-sm btn-outline-danger">
                 <i class="bi bi-trash"></i> Удалить

@@ -47,11 +47,20 @@
         </div>
         
         <div class="mb-3">
-          <label for="id_date" class="form-label">Date</label>
-          {{ form.date.errors }}
-          <input type="date" name="date" id="id_date" class="form-control {% if form.date.errors %}is-invalid{% endif %}" value="{{ form.date.value|date:'Y-m-d'|default:'' }}" required>
-          {% if form.date.errors %}
-            <div class="invalid-feedback">{{ form.date.errors.0 }}</div>
+          <label for="id_start_time" class="form-label">Start Time</label>
+          {{ form.start_time.errors }}
+          <input type="datetime-local" name="start_time" id="id_start_time" class="form-control {% if form.start_time.errors %}is-invalid{% endif %}" value="{{ form.start_time.value|date:'Y-m-d\\TH:i'|default:'' }}" required>
+          {% if form.start_time.errors %}
+            <div class="invalid-feedback">{{ form.start_time.errors.0 }}</div>
+          {% endif %}
+        </div>
+        
+        <div class="mb-3">
+          <label for="id_end_time" class="form-label">End Time</label>
+          {{ form.end_time.errors }}
+          <input type="datetime-local" name="end_time" id="id_end_time" class="form-control {% if form.end_time.errors %}is-invalid{% endif %}" value="{{ form.end_time.value|date:'Y-m-d\\TH:i'|default:'' }}" required>
+          {% if form.end_time.errors %}
+            <div class="invalid-feedback">{{ form.end_time.errors.0 }}</div>
           {% endif %}
         </div>
         
