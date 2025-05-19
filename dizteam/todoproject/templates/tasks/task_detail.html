@@ -37,11 +37,11 @@
             <p class="card-text text-muted">Нет описания</p>
         {% endif %}
     </div>
-    <div class="card-footer d-flex justify-content-between align-items-center">
-        <div>
+    <div class="card-footer">
+        <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="text-muted">Владелец: {{ task.owner.username }}</span>
         </div>
-        <div class="btn-group">
+        <div class="d-flex justify-content-end gap-2">
             <a href="{% url 'task_update' task.id %}" class="btn btn-sm btn-outline-primary">
                 <i class="bi bi-pencil"></i> Изменить
             </a>
