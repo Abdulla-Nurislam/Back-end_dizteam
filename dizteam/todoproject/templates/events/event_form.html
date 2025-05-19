@@ -82,9 +82,51 @@
           {% endif %}
         </div>
         
+        <div class="mb-3">
+          <label for="id_repeat" class="form-label">Repeat</label>
+          {{ form.repeat.errors }}
+          <select name="repeat" id="id_repeat" class="form-select {% if form.repeat.errors %}is-invalid{% endif %}">
+            {% for value, text in form.fields.repeat.choices %}
+              <option value="{{ value }}" {% if form.repeat.value == value %}selected{% endif %}>{{ text }}</option>
+            {% endfor %}
+          </select>
+          {% if form.repeat.errors %}
+            <div class="invalid-feedback">{{ form.repeat.errors.0 }}</div>
+          {% endif %}
+        </div>
+        
+        <div class="mb-3" id="repeat_until_container" {% if form.repeat.value == 'none' %}style="display:none;"{% endif %}>
+          <label for="id_repeat_until" class="form-label">Repeat Until</label>
+          {{ form.repeat_until.errors }}
+          <input type="date" name="repeat_until" id="id_repeat_until" class="form-control {% if form.repeat_until.errors %}is-invalid{% endif %}" value="{{ form.repeat_until.value|date:'Y-m-d'|default:'' }}">
+          {% if form.repeat_until.errors %}
+            <div class="invalid-feedback">{{ form.repeat_until.errors.0 }}</div>
+          {% endif %}
+        </div>
+        
+        <div class="mb-3">
+          <label for="id_notify_before" class="form-label">Notification Time (minutes before event)</label>
+          {{ form.notify_before.errors }}
+          <input type="number" name="notify_before" id="id_notify_before" class="form-control {% if form.notify_before.errors %}is-invalid{% endif %}" value="{{ form.notify_before.value|default:30 }}" min="0" max="1440">
+          {% if form.notify_before.errors %}
+            <div class="invalid-feedback">{{ form.notify_before.errors.0 }}</div>
+          {% endif %}
+        </div>
+        
         <div class="d-grid gap-2">
           <button type="submit" class="btn btn-primary">Save Event</button>
         </div>
+        
+        <script>
+          document.getElementById('id_repeat').addEventListener('change', function() {
+            var repeatUntilContainer = document.getElementById('repeat_until_container');
+            if (this.value === 'none') {
+              repeatUntilContainer.style.display = 'none';
+            } else {
+              repeatUntilContainer.style.display = 'block';
+            }
+          });
+        </script>
       </form>
     </div>
   </div>
