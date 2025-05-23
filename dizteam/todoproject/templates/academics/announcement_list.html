@@ -1,0 +1,113 @@
+{% extends 'base/base.html' %}
+
+{% block title %}University Announcements{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2>University Announcements</h2>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        {% if announcements %}
+            <div class="list-group">
+                {% for announcement in announcements %}
+                    <div class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ announcement.title }}</h5>
+                            <small>{{ announcement.date_posted|date:"M d, Y" }}</small>
+                        </div>
+                        <p class="mb-1">{{ announcement.content|linebreaks|truncatewords:50 }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                {% if announcement.course %}
+                                    <span class="badge bg-info">{{ announcement.course.code }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">General</span>
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            {% if is_paginated %}
+                <nav aria-label="Announcement pagination" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">Previous</span>
+                            </li>
+                        {% endif %}
+                        
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% else %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">Next</span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        {% else %}
+            <div class="alert alert-info">
+                No announcements available at this time.
+            </div>
+            
+            <!-- Sample announcements for demonstration -->
+            <div class="mt-4">
+                <h5>Sample Announcements (Demo Only)</h5>
+                <div class="list-group">
+                    <div class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">Final Exam Schedule Released</h5>
+                            <small>May 15, 2025</small>
+                        </div>
+                        <p class="mb-1">The final examination schedule for the Spring 2025 semester has been released. Please check your student portal for your personalized exam schedule. All students are required to confirm their exam times by May 20, 2025.</p>
+                        <small class="text-muted"><span class="badge bg-secondary">General</span></small>
+                    </div>
+                    
+                    <div class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">CS101 Assignment Deadline Extended</h5>
+                            <small>May 12, 2025</small>
+                        </div>
+                        <p class="mb-1">Due to technical issues with the submission system, the deadline for the CS101 Final Project has been extended to May 18, 2025. Please ensure all submissions are completed by 11:59 PM on the new deadline.</p>
+                        <small class="text-muted"><span class="badge bg-info">CS101</span></small>
+                    </div>
+                    
+                    <div class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">Library Hours Extended During Finals Week</h5>
+                            <small>May 10, 2025</small>
+                        </div>
+                        <p class="mb-1">The university library will extend its operating hours during finals week (May 25-31). The library will be open from 7:00 AM to 2:00 AM daily. Study rooms can be reserved through the library's online booking system.</p>
+                        <small class="text-muted"><span class="badge bg-secondary">General</span></small>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

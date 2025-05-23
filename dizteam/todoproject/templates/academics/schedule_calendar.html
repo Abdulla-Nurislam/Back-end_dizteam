@@ -1,0 +1,128 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Class Schedule Calendar{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.0/main.min.css" rel="stylesheet">
+<style>
+    #calendar {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .fc-event {
+        cursor: pointer;
+    }
+    .class-tooltip {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+        padding: 10px;
+        max-width: 300px;
+        z-index: 1000;
+    }
+    .class-tooltip h5 {
+        margin-top: 0;
+        margin-bottom: 5px;
+    }
+    .class-tooltip p {
+        margin-bottom: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2>Class Schedule Calendar</h2>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{% url 'schedule' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-list"></i> List View
+        </a>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <div id="calendar"></div>
+    </div>
+</div>
+
+<!-- Class Details Modal -->
+<div class="modal fade" id="classDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="classTitle">Class Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Course Code:</strong> <span id="classCode"></span></p>
+                <p><strong>Time:</strong> <span id="classTime"></span></p>
+                <p><strong>Location:</strong> <span id="classLocation"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.0/main.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'timeGridWeek',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            allDaySlot: false,
+            slotMinTime: '08:00:00',
+            slotMaxTime: '22:00:00',
+            height: 'auto',
+            events: function(info, successCallback, failureCallback) {
+                fetch('{% url "get_schedule_events" %}?start=' + info.startStr + '&end=' + info.endStr)
+                    .then(response => response.json())
+                    .then(data => {
+                        successCallback(data);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching events:', error);
+                        failureCallback(error);
+                    });
+            },
+            eventClick: function(info) {
+                if (info.event.extendedProps.type === 'class') {
+                    // Format the time
+                    var startTime = new Date(info.event.start);
+                    var endTime = new Date(info.event.end);
+                    var timeStr = startTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) + 
+                                ' - ' + endTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    
+                    // Update modal content
+                    document.getElementById('classTitle').textContent = info.event.title;
+                    document.getElementById('classCode').textContent = info.event.extendedProps.course_code;
+                    document.getElementById('classTime').textContent = timeStr;
+                    document.getElementById('classLocation').textContent = info.event.extendedProps.location;
+                    
+                    // Show modal
+                    var modal = new bootstrap.Modal(document.getElementById('classDetailsModal'));
+                    modal.show();
+                }
+            },
+            eventTimeFormat: {
+                hour: '2-digit',
+                minute: '2-digit',
+                meridiem: 'short'
+            }
+        });
+        calendar.render();
+    });
+</script>
+{% endblock %}

@@ -29,6 +29,7 @@ urlpatterns = [
     path('categories/', include('categories.urls')),
     path('users/', include('users.urls')),
     path('events/', include('events.urls')),
+    path('academics/', include('academics.urls')),
     path('calendar/', views.calendar_view, name='calendar'),
     path('debug/', views.debug_view, name='main_debug'),
 ]

@@ -59,6 +59,17 @@
                             <i class="fas fa-calendar-week"></i> Events
                         </a>
                     </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="academicsDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-graduation-cap"></i> Academics
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'schedule' %}">Class Schedule</a></li>
+                            <li><a class="dropdown-item" href="{% url 'grades' %}">Grades & Performance</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'announcement_list' %}">Announcements</a></li>
+                        </ul>
+                    </li>
                 </ul>
                 <ul class="navbar-nav ms-auto">
                     {% if user.is_authenticated %}

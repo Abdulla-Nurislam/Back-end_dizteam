@@ -1,6 +1,6 @@
-# Task and Event Management App
+# AlmaU Student Portal
 
-A comprehensive task and event management application built with Django. This project combines task management with calendar functionality, inspired by Google Calendar and Things3.
+A comprehensive student portal for Almaty Management University (AlmaU) built with Django. This project combines academic features like class schedules and grade tracking with task and event management functionality.
 
 ## Project Structure
 
@@ -9,6 +9,7 @@ The project contains several Django applications:
 - **tasks**: Task management with Projects, Areas, and Tags (inspired by Things3)
 - **categories**: Management of task categories
 - **events**: Event management with calendar integration (inspired by Google Calendar)
+- **academics**: Academic features including class schedules, grades tracking, and university announcements
 
 ## Data Models
 
@@ -20,6 +21,10 @@ The project contains several Django applications:
 6. **Project** (grouping mechanism for tasks)
 7. **Area** (high-level organization for tasks and projects)
 8. **Tag** (color-coded labels for tasks)
+9. **Course** (university courses with code, name, credits, and description)
+10. **ClassSchedule** (scheduled class sessions with day, time, and location)
+11. **Grade** (academic performance records with scores and grade types)
+12. **Announcement** (university announcements and notifications)
 
 ## ER Diagram
 
@@ -68,6 +73,12 @@ The project contains several Django applications:
 ```
 
 ## Key Features
+
+### Academic Features
+- **Interactive Class Schedule**: View your class schedule in both list and calendar views
+- **Academic Performance Tracking**: Monitor your grades with visual charts and detailed breakdowns
+- **Course Information**: Access detailed information about your enrolled courses
+- **University Announcements**: Stay updated with important university notifications
 
 ### Task Management
 - Create, edit, and delete tasks
@@ -143,6 +154,26 @@ For production, consider setting up Celery to automate notification delivery:
 - Font Awesome
 - FullCalendar (for calendar views)
 - Select2 (for tag selection)
+
+## AI-Assisted Development
+
+This project was enhanced with AI assistance to implement student-focused features for AlmaU. Here's how AI was used in the development process:
+
+### AI Tools Used
+- **Cascade/ChatGPT**: Used for code generation, feature planning, and documentation
+- **GitHub Copilot**: Assisted with code completion and suggestions
+- **AI-Generated UI Components**: Chart visualizations and layout designs were inspired by AI suggestions
+
+### Development Process with AI
+1. **Requirement Analysis**: AI helped analyze student needs and prioritize features
+2. **Code Generation**: Core models, views, and templates were generated with AI assistance
+3. **UI/UX Design**: Interface layouts and user flows were optimized based on AI recommendations
+4. **Documentation**: README and inline code documentation were enhanced with AI
+
+### Benefits of AI Integration
+- **Rapid Development**: Significantly reduced development time for complex features
+- **Best Practices**: AI suggested modern design patterns and coding standards
+- **User-Centered Design**: AI helped focus on student needs and usability
 
 ## Deployment on PythonAnywhere
 

@@ -1,0 +1,104 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Class Schedule{% endblock %}
+
+{% block extra_css %}
+<style>
+    .schedule-card {
+        border-left: 4px solid #3788d8;
+        transition: transform 0.2s;
+    }
+    .schedule-card:hover {
+        transform: translateY(-3px);
+    }
+    .schedule-day {
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        padding: 10px;
+        margin-bottom: 15px;
+    }
+    .schedule-time {
+        font-weight: bold;
+        color: #495057;
+    }
+    .schedule-location {
+        color: #6c757d;
+    }
+    .day-filter-btn.active {
+        background-color: #0d6efd;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2>Class Schedule</h2>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{% url 'schedule_calendar' %}" class="btn btn-outline-primary">
+            <i class="fas fa-calendar-alt"></i> Calendar View
+        </a>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Filter by Day</h5>
+            <a href="{% url 'schedule' %}" class="btn btn-sm btn-outline-secondary {% if not day_filter %}d-none{% endif %}">
+                Clear Filter
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="btn-group w-100 mb-3">
+            {% for day_code, day_name in days %}
+            <a href="{% url 'schedule' %}?day={{ day_code }}" 
+               class="btn btn-outline-primary day-filter-btn {% if day_filter == day_code %}active{% endif %} {% if today == day_code and not day_filter %}active{% endif %}">
+                {{ day_name }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% if schedule %}
+    {% regroup schedule by day_of_week as schedule_by_day %}
+    
+    {% for day in schedule_by_day %}
+    <div class="schedule-day">
+        <h3>{{ day.grouper|title }}</h3>
+        <div class="row">
+            {% for class in day.list %}
+            <div class="col-md-6 mb-3">
+                <div class="card schedule-card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ class.course.name }}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">{{ class.course.code }}</h6>
+                        <p class="schedule-time">
+                            <i class="fas fa-clock"></i> 
+                            {{ class.start_time|time:"g:i A" }} - {{ class.end_time|time:"g:i A" }}
+                        </p>
+                        <p class="schedule-location">
+                            <i class="fas fa-map-marker-alt"></i> {{ class.location }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="alert alert-info">
+        {% if day_filter %}
+            No classes scheduled for this day.
+        {% else %}
+            No classes found in your schedule.
+        {% endif %}
+    </div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,295 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{{ course.name }} Grades{% endblock %}
+
+{% block extra_css %}
+<style>
+    .grade-card {
+        border-left: 4px solid #28a745;
+        margin-bottom: 15px;
+    }
+    .grade-badge {
+        font-size: 1.2rem;
+        padding: 8px 12px;
+        border-radius: 50%;
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .progress-bar-container {
+        height: 25px;
+        background-color: #e9ecef;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+    .progress-bar {
+        height: 100%;
+        border-radius: 5px;
+        text-align: center;
+        color: white;
+        font-weight: bold;
+        line-height: 25px;
+    }
+    .grade-a {
+        background-color: #28a745;
+    }
+    .grade-b {
+        background-color: #17a2b8;
+    }
+    .grade-c {
+        background-color: #ffc107;
+    }
+    .grade-d {
+        background-color: #fd7e14;
+    }
+    .grade-f {
+        background-color: #dc3545;
+    }
+    .grade-type-section {
+        margin-bottom: 30px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2>{{ course.name }} ({{ course.code }})</h2>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{% url 'grades' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to All Grades
+        </a>
+    </div>
+</div>
+
+<!-- Course Summary Card -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Course Summary</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h4>Overall Grade: 
+                    <span class="badge 
+                        {% if 'A' in letter_grade %}bg-success
+                        {% elif 'B' in letter_grade %}bg-info
+                        {% elif 'C' in letter_grade %}bg-warning
+                        {% elif 'D' in letter_grade %}bg-warning text-dark
+                        {% else %}bg-danger{% endif %}">
+                        {{ letter_grade }} ({{ average|floatformat:1 }}%)
+                    </span>
+                </h4>
+                <p>{{ course.description }}</p>
+                <p><strong>Credits:</strong> {{ course.credits }}</p>
+            </div>
+            <div class="col-md-6">
+                <div class="progress-bar-container">
+                    <div class="progress-bar 
+                        {% if 'A' in letter_grade %}grade-a
+                        {% elif 'B' in letter_grade %}grade-b
+                        {% elif 'C' in letter_grade %}grade-c
+                        {% elif 'D' in letter_grade %}grade-d
+                        {% else %}grade-f{% endif %}"
+                        style="width: {{ average }}%">
+                        {{ average|floatformat:1 }}%
+                    </div>
+                </div>
+                <canvas id="courseGradeDistribution" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Grade Breakdown by Type -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Grade Breakdown</h5>
+    </div>
+    <div class="card-body">
+        {% if grade_types %}
+            {% for type_name, type_grades in grade_types.items %}
+            <div class="grade-type-section">
+                <h4>{{ type_name|title }}</h4>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Assignment</th>
+                                <th>Date</th>
+                                <th>Score</th>
+                                <th>Weight</th>
+                                <th>Grade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for grade in type_grades %}
+                            <tr>
+                                <td>{{ grade.title }}</td>
+                                <td>{{ grade.date_added|date:"M d, Y" }}</td>
+                                <td>{{ grade.points_earned }}/{{ grade.points_possible }} ({{ grade.percentage|floatformat:1 }}%)</td>
+                                <td>{{ grade.weight }}</td>
+                                <td>
+                                    <span class="badge 
+                                        {% if 'A' in grade.letter_grade %}bg-success
+                                        {% elif 'B' in grade.letter_grade %}bg-info
+                                        {% elif 'C' in grade.letter_grade %}bg-warning
+                                        {% elif 'D' in grade.letter_grade %}bg-warning text-dark
+                                        {% else %}bg-danger{% endif %}">
+                                        {{ grade.letter_grade }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info">
+                No grades available for this course.
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Grade Trend Over Time -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Grade Trend</h5>
+    </div>
+    <div class="card-body">
+        <canvas id="gradeTrendChart" height="300"></canvas>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Prepare data for grade distribution chart
+        var gradeTypes = [];
+        var gradeCounts = [];
+        
+        {% for type_name, type_grades in grade_types.items %}
+        gradeTypes.push('{{ type_name|title }}');
+        gradeCounts.push({{ type_grades|length }});
+        {% endfor %}
+        
+        // Create grade distribution chart
+        var distributionCtx = document.getElementById('courseGradeDistribution').getContext('2d');
+        var distributionChart = new Chart(distributionCtx, {
+            type: 'doughnut',
+            data: {
+                labels: gradeTypes,
+                datasets: [{
+                    data: gradeCounts,
+                    backgroundColor: [
+                        '#4e73df',
+                        '#1cc88a',
+                        '#36b9cc',
+                        '#f6c23e',
+                        '#e74a3b',
+                        '#6f42c1'
+                    ],
+                    hoverBackgroundColor: [
+                        '#2e59d9',
+                        '#17a673',
+                        '#2c9faf',
+                        '#dda20a',
+                        '#be2617',
+                        '#5a3092'
+                    ],
+                    hoverBorderColor: "rgba(234, 236, 244, 1)",
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                var label = context.label || '';
+                                var value = context.raw;
+                                var total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                var percentage = Math.round((value / total) * 100);
+                                return label + ': ' + value + ' (' + percentage + '%)';
+                            }
+                        }
+                    }
+                },
+                cutout: '70%'
+            }
+        });
+        
+        // Prepare data for grade trend chart
+        var dates = [];
+        var scores = [];
+        
+        {% for grade in grades|dictsortreversed:"date_added" %}
+        dates.push('{{ grade.date_added|date:"M d, Y" }}');
+        scores.push({{ grade.percentage }});
+        {% endfor %}
+        
+        // Reverse arrays to show chronological order
+        dates.reverse();
+        scores.reverse();
+        
+        // Create grade trend chart
+        var trendCtx = document.getElementById('gradeTrendChart').getContext('2d');
+        var trendChart = new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: 'Grade Percentage',
+                    data: scores,
+                    backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                    borderColor: 'rgba(78, 115, 223, 1)',
+                    pointRadius: 3,
+                    pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                    pointBorderColor: 'rgba(78, 115, 223, 1)',
+                    pointHoverRadius: 5,
+                    pointHoverBackgroundColor: 'rgba(78, 115, 223, 1)',
+                    pointHoverBorderColor: 'rgba(78, 115, 223, 1)',
+                    pointHitRadius: 10,
+                    pointBorderWidth: 2,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.raw.toFixed(1) + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
